@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # notes
 
 A new Flutter project.
@@ -14,3 +15,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# To-Do
+A single screen Flutter application that can help keep track of your daily tasks. Works well on Android phone and iPhone.
+>>>>>>> f8c3bb5d33dae2e4f7cb52998b58180756971df9
