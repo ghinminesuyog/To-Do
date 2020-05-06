@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,7 +27,6 @@ var myTheme = ThemeData(
 );
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -55,25 +57,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  saveData(List<Task> tasks) async {
+// obtain shared preferences
+    final prefs = await SharedPreferences.getInstance();
+
+// set value
+    prefs.setString('tasks', json.encode(tasks));
+  }
+
+  readData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    List<Task> saved = json.decode(prefs.getString('tasks')) ?? [];
+
+    tasks.addAll(saved);
+  }
+
+  deleteData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    prefs.remove('counter');
+  }
+
   List<Task> tasks = [];
 
   initState() {
     super.initState();
+try {
+      readData();
+      print('No e');
 
-    tasks = [
-      // Task(true, 'A', true),
-      // Task(false, 'B', false),
-      // Task(false, 'C', false),
-      // Task(false, 'D', true),
-      // Task(true, 'E', true),
-      // Task(true, 'F', false),
-      // Task(true, 'Z', true),
-      // Task(false, 'Y', false),
-      // Task(false, 'X', false),
-      // Task(false, 'W', true),
-      // Task(true, 'V', true),
-      // Task(true, 'U', false)
-    ];
+} catch (e) {
+  print('Error: $e');
+}
   }
 
   // void saveNote() {
@@ -108,6 +124,20 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: MaterialButton(
+            child: Text('Save'),
+            onPressed: () {
+              setState(() {
+                try {
+                  for (var task in tasks) {
+                    print(task);
+                  }
+                  saveData(tasks);
+                } catch (id) {
+                  print('Failed: $id');
+                }
+              });
+            }),
         title: Text(
           widget.title,
           style: TextStyle(fontSize: 28),
@@ -198,4 +228,15 @@ class Task {
   String text;
   bool checked;
   Task(this.important, this.text, this.checked);
+
+  Map<String, dynamic> toJson() => {
+        'important': important,
+        'text': text,
+        'checked': checked,
+      };
+
+  Task.fromJson(Map<String, dynamic> json)
+      : important = json['important'],
+        text = json['text'],
+        checked = json['checked'];
 }
