@@ -73,12 +73,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<TodoItem> toDo = [];
 
-  // final LocalStorage storage = new LocalStorage('todo_app');
-
   initState() {
     super.initState();
-    // _write('My name Suyog');
-    // _readFromStorage();
     _read();
   }
 
@@ -98,11 +94,8 @@ class _MyHomePageState extends State<MyHomePage> {
       final file = await _getFilePath();
 
       text = await file.readAsString();
-      // print(text);
-      // tasks = text;
 
       var tasks = jsonDecode(text);
-      // print(tasksList);
 
       List<TodoItem> items = [];
 
