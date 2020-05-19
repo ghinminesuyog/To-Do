@@ -1,13 +1,12 @@
 import 'dart:convert';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'dart:core';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -26,9 +25,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return File('${directory.path}/my_file.txt');
   }
 
-  _write(String text) async {
+  _write() async {
     final file = await _getFilePath();
-    await file.writeAsString(text);
+
+    List<TodoItem> todos = toDo;
+    String todosString = json.encode(todos);
+
+    await file.writeAsString(todosString);
   }
 
   Future<String> _read() async {
@@ -43,16 +46,13 @@ class _MyHomePageState extends State<MyHomePage> {
       List<TodoItem> items = [];
 
       for (var task in tasks) {
-        print(task);
-
         String txt = task['text'];
         bool imp = task['important'];
         bool chek = task['checked'];
 
-        TodoItem item = TodoItem(imp, txt, chek);
+        TodoItem item = TodoItem(important: imp, text: txt, checked: chek);
         items.add(item);
       }
-
       setState(() {
         toDo.addAll(items);
       });
@@ -60,13 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
       print("Couldn't read file because $e");
     }
     return text;
-  }
-
-  listToString(List<TodoItem> todos) {
-    String todosString = json.encode(todos);
-    print('String: \n$todosString');
-
-    _write(todosString);
   }
 
   delete(int index) {
@@ -96,20 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          MaterialButton(
-            child: Text('Save'),
-            onPressed: () {
-              listToString(toDo);
-            },
-          ),
-        ],
-        title: Text(
-          widget.title,
-          style: TextStyle(fontSize: 28),
-        ),
-      ),
+     
       body: Center(
         child: ListView.builder(
           itemCount: toDo.length,
@@ -142,12 +122,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       onTap: () {
                         setState(() {
                           toDo[index].important = !toDo[index].important;
+                          _write();
                         });
                       },
                       child: Icon(
-                        Icons.warning,
+                        (toDo[index].important)
+                            ? Icons.star
+                            : Icons.star_border,
                         color: (toDo[index].important)
-                            ? Colors.red[400]
+                            ? Colors.yellow[900]
                             : Colors.black45,
                       )),
                   title: TextField(
@@ -158,6 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(fontSize: 20),
                     onChanged: (String val) {
                       toDo[index].text = val;
+                      _write();
                     },
                   ),
                   trailing: Checkbox(
@@ -165,6 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (bool value) {
                       setState(() {
                         toDo[index].checked = value;
+                        _write();
                       });
                     },
                   ),
@@ -176,9 +161,18 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            toDo.add(TodoItem(false, '', false));
-          });
+          setState(
+            () {
+              toDo.insert(
+                0,
+                TodoItem(
+                  checked: false,
+                  text: '',
+                  important: false,
+                ),
+              );
+            },
+          );
         },
         tooltip: 'Create a new task',
         child: Icon(
@@ -194,25 +188,8 @@ class TodoItem {
   bool important;
   String text;
   bool checked;
-  TodoItem(this.important, this.text, this.checked);
+  TodoItem({this.important, this.text, this.checked});
 
-  Map<String, dynamic> toJson() => {
-        'important': important,
-        'text': text,
-        'checked': checked,
-      };
+  Map<String, dynamic> toJson() =>
+      {'important': important, 'text': text, 'checked': checked};
 }
-
-// class TodoList {
-//   List<TodoItem> items;
-
-//   TodoList() {
-//     items = new List();
-//   }
-
-//   toJSONEncodable() {
-//     return items.map((item) {
-//       return item.toJson();
-//     }).toList();
-//   }
-// }

@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'todo_list.dart';
+import 'settings.dart';
 
 void main() {
   if (!kIsWeb && Platform.isMacOS) {
@@ -12,27 +14,29 @@ void main() {
 
 var myTheme = ThemeData(
   primarySwatch: Colors.lightBlue,
-  fontFamily: 'DancingScript',
+  // fontFamily: 'DancingScript',
   primaryTextTheme: TextTheme(
-    headline: TextStyle(color: Colors.white),
-    display1: TextStyle(color: Colors.white),
-    display2: TextStyle(color: Colors.white),
-    display3: TextStyle(color: Colors.white),
-    display4: TextStyle(color: Colors.white),
-    title: TextStyle(color: Colors.white),
-    subtitle: TextStyle(color: Colors.white),
-    subhead: TextStyle(color: Colors.white),
-    body1: TextStyle(color: Colors.white),
-    body2: TextStyle(color: Colors.white),
     caption: TextStyle(color: Colors.white),
     overline: TextStyle(color: Colors.white),
     button: TextStyle(color: Colors.white),
   ),
 );
 
+class MyApp extends StatefulWidget {
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
+  List<Widget> _screens = [MyHomePage(), SettingsScreen()];
+  var _currentIndex = 0;
 
 
-class MyApp extends StatelessWidget {
+  changeIndex(int ind) {
+    setState(() {
+      _currentIndex = ind;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -47,7 +51,48 @@ class MyApp extends StatelessWidget {
         title: 'To Do',
         debugShowCheckedModeBanner: false,
         theme: myTheme,
-        home: MyHomePage(title: 'To Do'),
+        home: Scaffold(
+          appBar: AppBar(
+            title: Text(
+              'To Do',
+              style: TextStyle(fontSize: 28),
+            ),
+          ),
+          drawer: Drawer(
+            child: ListView(
+              children: <Widget>[
+                DrawerHeader(
+                  child: Text(
+                    'To Do',
+                    style: TextStyle( color: Colors.white),
+                  ),
+                  decoration: BoxDecoration(color: Colors.blue),
+                ),
+                ListTile(
+                  selected: (_currentIndex == 0),
+                  leading: Icon(Icons.event_note),
+                  title: Text(
+                    'To Do',
+                  ),
+                  onTap: () {
+                    changeIndex(0);
+                  },
+                ),
+                ListTile(
+                  selected: (_currentIndex == 1),
+                  leading: Icon(Icons.settings_applications),
+                  title: Text(
+                    'Settings',
+                  ),
+                  onTap: () {
+                    changeIndex(1);
+                  },
+                ),
+              ],
+            ),
+          ),
+          body: _screens[_currentIndex],
+        ),
       ),
     );
   }
