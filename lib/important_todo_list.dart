@@ -5,12 +5,12 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:core';
 
-class MyHomePage extends StatefulWidget {
+class ImportantToDo extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _ImportantToDoState createState() => _ImportantToDoState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _ImportantToDoState extends State<ImportantToDo> {
   List<TodoItem> toDo = [];
 
   bool isFiltered = false;
@@ -38,14 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return File('${directory.path}/my_file.txt');
   }
 
-  _write() async {
-    final file = await _getFilePath();
-
-    List<TodoItem> todos = toDo;
-    String todosString = json.encode(todos);
-
-    await file.writeAsString(todosString);
-  }
+  
 
   Future<String> _read() async {
     String text;
@@ -66,9 +59,12 @@ class _MyHomePageState extends State<MyHomePage> {
         bool chek = task['checked'];
 
         TodoItem item = TodoItem(important: imp, text: txt, checked: chek);
-        setState(() {
-          toDo.add(item);
-        });
+
+        if (item.important) {
+          setState(() {
+            toDo.add(item);
+          });
+        }
       }
     } catch (e) {
       print("Couldn't read file because $e");
@@ -131,7 +127,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     onTap: () {
                       setState(() {
                         toDo[index].important = !toDo[index].important;
-                        _write();
                       });
                     },
                     child: Icon(
@@ -149,7 +144,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(fontSize: 20),
                     onChanged: (String val) {
                       toDo[index].text = val;
-                      _write();
                     },
                   ),
                   trailing: Checkbox(
@@ -157,7 +151,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (bool value) {
                       setState(() {
                         toDo[index].checked = value;
-                        _write();
                       });
                     },
                   ),
@@ -198,7 +191,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 onTap: () {
                   setState(() {
                     toDo[index].important = !toDo[index].important;
-                    _write();
                   });
                 },
                 child: Icon(
@@ -216,7 +208,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(fontSize: 20),
                 onChanged: (String val) {
                   toDo[index].text = val;
-                  _write();
                 },
               ),
               trailing: Checkbox(
@@ -224,7 +215,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 onChanged: (bool value) {
                   setState(() {
                     toDo[index].checked = value;
-                    _write();
                   });
                 },
               ),
@@ -259,7 +249,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: TextField(
-          
           controller: searchTextController,
           onChanged: (value) {},
         ),

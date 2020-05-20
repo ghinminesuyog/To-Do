@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'todo_list.dart';
+import 'important_todo_list.dart';
 import 'settings.dart';
+
 
 void main() {
   if (!kIsWeb && Platform.isMacOS) {
@@ -27,7 +29,7 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  List<Widget> _screens = [MyHomePage(), SettingsScreen()];
+  List<Widget> _screens = [MyHomePage(), ImportantToDo() ,SettingsScreen(),];
   var _currentIndex = 0;
 
 
@@ -72,20 +74,30 @@ class MyAppState extends State<MyApp> {
                   selected: (_currentIndex == 0),
                   leading: Icon(Icons.event_note),
                   title: Text(
-                    'To Do',
+                    'To-Do',
                   ),
                   onTap: () {
                     changeIndex(0);
                   },
                 ),
-                ListTile(
+                 ListTile(
                   selected: (_currentIndex == 1),
+                  leading: Icon(Icons.star),
+                  title: Text(
+                    'Important To-Dos',
+                  ),
+                  onTap: () {
+                    changeIndex(1);
+                  },
+                ),
+                ListTile(
+                  selected: (_currentIndex == 2),
                   leading: Icon(Icons.settings_applications),
                   title: Text(
                     'Settings',
                   ),
                   onTap: () {
-                    changeIndex(1);
+                    changeIndex(2);
                   },
                 ),
               ],
