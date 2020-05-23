@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:core';
+import 'settings.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -16,6 +17,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isFiltered = false;
   TextEditingController searchTextController = new TextEditingController();
   String searchText = '';
+
+  bool isDarkMode = false;
 
   initState() {
     super.initState();
@@ -76,6 +79,28 @@ class _MyHomePageState extends State<MyHomePage> {
     return text;
   }
 
+  bool isLargeFont = false;
+
+  _getSettingsFile() async {
+    final Directory directory = await getApplicationDocumentsDirectory();
+    return File('${directory.path}/my_settings_file.txt');
+  }
+
+  readSettings() async {
+    try {
+      File file = await _getSettingsFile();
+      var settingsString = await file.readAsString();
+      var settings = jsonDecode(settingsString);
+      print(settings);
+      setState(() {
+        isLargeFont = settings['largeFont'];
+        isDarkMode = settings['dark'];
+      });
+    } catch (e) {
+      print('Problem reading settings. $e');
+    }
+  }
+
   delete(int index) {
     setState(() {
       toDo.removeAt(index);
@@ -87,7 +112,14 @@ class _MyHomePageState extends State<MyHomePage> {
       toDo.insert(index, item);
     });
   }
-
+getFont() {
+    font.stream.listen((data) {
+      setState(() {
+        isLargeFont = data;
+      });
+    });
+    return isLargeFont;
+  }
   filterByImportance() {
     if (!isFiltered) {
       setState(
@@ -136,9 +168,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                     child: Icon(
                       (toDo[index].important) ? Icons.star : Icons.star_border,
-                      color: (toDo[index].important)
+                       color: (isDarkMode)
+                      ? (toDo[index].important)
                           ? Colors.yellow[900]
-                          : Colors.black45,
+                          : Colors.white
+                      : ((toDo[index].important)
+                          ? Colors.yellow[900]
+                          : Colors.black45),
                     ),
                   ),
                   title: TextField(
@@ -146,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     // keyboardType: TextInputType.multiline,
                     minLines: 1,
                     maxLines: 5,
-                    style: TextStyle(fontSize: 20),
+                    style: (getFont()) ? TextStyle(fontSize: 20) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
                       _write();
@@ -172,7 +208,9 @@ class _MyHomePageState extends State<MyHomePage> {
       itemBuilder: (context, index) {
         return Container(
           padding: EdgeInsets.only(top: 20, bottom: 30),
-          color: (index % 2 == 0) ? Colors.white : Color(0x22ffffff),
+           color: (!isDarkMode)
+              ? ((index % 2 == 0) ? Color(0x00000000) : Color(0x22000000))
+              : ((index % 2 == 0) ? Colors.white : Color(0x22ffffff)),
           child: Dismissible(
             key: ObjectKey(toDo[index]),
             background: stackBehindDismiss(),
@@ -213,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 // keyboardType: TextInputType.multiline,
                 minLines: 1,
                 maxLines: 5,
-                style: TextStyle(fontSize: 20),
+                style: getFont() ? TextStyle(fontSize: 20) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
                   _write();
@@ -252,14 +290,13 @@ class _MyHomePageState extends State<MyHomePage> {
       tooltip: 'Create a new task',
       child: Icon(
         Icons.add,
-        color: Colors.white,
+        // color: Colors.white,
       ),
     );
 
     return Scaffold(
       appBar: AppBar(
         title: TextField(
-          
           controller: searchTextController,
           onChanged: (value) {},
         ),

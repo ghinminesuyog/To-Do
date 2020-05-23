@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:core';
+import 'settings.dart';
 
 class ImportantToDo extends StatefulWidget {
   @override
@@ -16,10 +17,34 @@ class _ImportantToDoState extends State<ImportantToDo> {
   bool isFiltered = false;
   TextEditingController searchTextController = new TextEditingController();
   String searchText = '';
+  bool isLargeFont = false;
+  bool isDarkMode = false;
+
+  _getSettingsFile() async {
+    final Directory directory = await getApplicationDocumentsDirectory();
+    return File('${directory.path}/my_settings_file.txt');
+  }
+
+  readSettings() async {
+    try {
+      File file = await _getSettingsFile();
+      var settingsString = await file.readAsString();
+      var settings = jsonDecode(settingsString);
+      print(settings);
+      setState(() {
+        isLargeFont = settings['largeFont'];
+        isDarkMode = settings['dark'];
+      });
+    } catch (e) {
+      print('Problem reading settings. $e');
+    }
+  }
 
   initState() {
     super.initState();
     _read();
+    readSettings();
+
     searchTextController.addListener(() {
       setState(() {
         searchText = searchTextController.text;
@@ -37,8 +62,6 @@ class _ImportantToDoState extends State<ImportantToDo> {
     final Directory directory = await getApplicationDocumentsDirectory();
     return File('${directory.path}/my_file.txt');
   }
-
-  
 
   Future<String> _read() async {
     String text;
@@ -83,7 +106,14 @@ class _ImportantToDoState extends State<ImportantToDo> {
       toDo.insert(index, item);
     });
   }
-
+getFont() {
+    font.stream.listen((data) {
+      setState(() {
+        isLargeFont = data;
+      });
+    });
+    return isLargeFont;
+  }
   filterByImportance() {
     if (!isFiltered) {
       setState(
@@ -131,9 +161,13 @@ class _ImportantToDoState extends State<ImportantToDo> {
                     },
                     child: Icon(
                       (toDo[index].important) ? Icons.star : Icons.star_border,
-                      color: (toDo[index].important)
+                      color: (isDarkMode)
+                      ? (toDo[index].important)
                           ? Colors.yellow[900]
-                          : Colors.black45,
+                          : Colors.white
+                      : ((toDo[index].important)
+                          ? Colors.yellow[900]
+                          : Colors.black45),
                     ),
                   ),
                   title: TextField(
@@ -141,7 +175,8 @@ class _ImportantToDoState extends State<ImportantToDo> {
                     // keyboardType: TextInputType.multiline,
                     minLines: 1,
                     maxLines: 5,
-                    style: TextStyle(fontSize: 20),
+                    style:
+                        (getFont()) ? TextStyle(fontSize: 20) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
                     },
@@ -165,7 +200,9 @@ class _ImportantToDoState extends State<ImportantToDo> {
       itemBuilder: (context, index) {
         return Container(
           padding: EdgeInsets.only(top: 20, bottom: 30),
-          color: (index % 2 == 0) ? Colors.white : Color(0x22ffffff),
+          color: (isDarkMode)
+              ? ((index % 2 == 0) ? Color(0x00000000) : Color(0x22000000))
+              : ((index % 2 == 0) ? Colors.white : Color(0x22ffffff)),
           child: Dismissible(
             key: ObjectKey(toDo[index]),
             background: stackBehindDismiss(),
@@ -195,9 +232,13 @@ class _ImportantToDoState extends State<ImportantToDo> {
                 },
                 child: Icon(
                   (toDo[index].important) ? Icons.star : Icons.star_border,
-                  color: (toDo[index].important)
-                      ? Colors.yellow[900]
-                      : Colors.black45,
+                  color: (isDarkMode)
+                      ? ((toDo[index].important)
+                          ? Colors.yellow[900]
+                          : Colors.white)
+                      : ((toDo[index].important)
+                          ? Colors.yellow[900]
+                          : Colors.black45),
                 ),
               ),
               title: TextField(
@@ -205,7 +246,7 @@ class _ImportantToDoState extends State<ImportantToDo> {
                 // keyboardType: TextInputType.multiline,
                 minLines: 1,
                 maxLines: 5,
-                style: TextStyle(fontSize: 20),
+                style: (getFont()) ? TextStyle(fontSize: 20) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
                 },
@@ -224,27 +265,27 @@ class _ImportantToDoState extends State<ImportantToDo> {
       },
     );
 
-    var addNewButton = FloatingActionButton(
-      onPressed: () {
-        setState(
-          () {
-            toDo.insert(
-              0,
-              TodoItem(
-                checked: false,
-                text: '',
-                important: false,
-              ),
-            );
-          },
-        );
-      },
-      tooltip: 'Create a new task',
-      child: Icon(
-        Icons.add,
-        color: Colors.white,
-      ),
-    );
+    // var addNewButton = FloatingActionButton(
+    //   onPressed: () {
+    //     setState(
+    //       () {
+    //         toDo.insert(
+    //           0,
+    //           TodoItem(
+    //             checked: false,
+    //             text: '',
+    //             important: false,
+    //           ),
+    //         );
+    //       },
+    //     );
+    //   },
+    //   tooltip: 'Create a new task',
+    //   child: Icon(
+    //     Icons.add,
+    //     // color: Colors.white,
+    //   ),
+    // );
 
     return Scaffold(
       appBar: AppBar(
@@ -260,7 +301,7 @@ class _ImportantToDoState extends State<ImportantToDo> {
           ),
         ],
       ),
-      floatingActionButton: addNewButton,
+      // floatingActionButton: addNewButton,
       body: Center(
         child: ((searchText == '' || searchText == null)
             ? toDoList

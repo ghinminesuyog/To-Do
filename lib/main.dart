@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -5,7 +7,7 @@ import 'dart:io';
 import 'todo_list.dart';
 import 'important_todo_list.dart';
 import 'settings.dart';
-
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   if (!kIsWeb && Platform.isMacOS) {
@@ -14,7 +16,7 @@ void main() {
   runApp(MyApp());
 }
 
-var myTheme = ThemeData(
+var lightTheme = ThemeData(
   primarySwatch: Colors.lightBlue,
   // fontFamily: 'DancingScript',
   primaryTextTheme: TextTheme(
@@ -24,19 +26,73 @@ var myTheme = ThemeData(
   ),
 );
 
+var darkTheme = ThemeData.dark();
+
 class MyApp extends StatefulWidget {
   MyAppState createState() => MyAppState();
 }
 
 class MyAppState extends State<MyApp> {
-  List<Widget> _screens = [MyHomePage(), ImportantToDo() ,SettingsScreen(),];
-  var _currentIndex = 0;
+  bool isDarkMode = false;
+  bool isLargeFont = false;
 
+  _getSettingsFile() async {
+    final Directory directory = await getApplicationDocumentsDirectory();
+    return File('${directory.path}/my_settings_file.txt');
+  }
+
+  readSettings() async {
+    try {
+      File file = await _getSettingsFile();
+      var settingsString = await file.readAsString();
+      var settings = jsonDecode(settingsString);
+      print(settings);
+      setState(() {
+        isDarkMode = settings['dark'];
+        isLargeFont = settings['largeFont'];
+      });
+    } catch (e) {
+      print('Problem reading settings. $e');
+    }
+  }
+
+  List<Widget> _screens = [
+    MyHomePage(),
+    ImportantToDo(),
+    SettingsScreen(),
+  ];
+  var _currentIndex = 0;
 
   changeIndex(int ind) {
     setState(() {
       _currentIndex = ind;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    readSettings();
+  }
+
+  getTheme() {
+    //Listen to the stream:
+    theme.stream.listen((data) {
+      setState(() {
+        isDarkMode = data;
+      });
+    });
+    return isDarkMode;
+  }
+
+  getFont() {
+    font.stream.listen((data) {
+      setState(() {
+        isLargeFont = data;
+      });
+    });
+    return isLargeFont;
   }
 
   @override
@@ -52,12 +108,12 @@ class MyAppState extends State<MyApp> {
       child: MaterialApp(
         title: 'To Do',
         debugShowCheckedModeBanner: false,
-        theme: myTheme,
+        theme: getTheme() ? darkTheme : lightTheme,
         home: Scaffold(
           appBar: AppBar(
             title: Text(
               'To Do',
-              style: TextStyle(fontSize: 28),
+              style: (getFont()) ? TextStyle(fontSize: 28) : TextStyle(),
             ),
           ),
           drawer: Drawer(
@@ -66,7 +122,7 @@ class MyAppState extends State<MyApp> {
                 DrawerHeader(
                   child: Text(
                     'To Do',
-                    style: TextStyle( color: Colors.white),
+                    style: TextStyle(color: Colors.white),
                   ),
                   decoration: BoxDecoration(color: Colors.blue),
                 ),
@@ -80,7 +136,7 @@ class MyAppState extends State<MyApp> {
                     changeIndex(0);
                   },
                 ),
-                 ListTile(
+                ListTile(
                   selected: (_currentIndex == 1),
                   leading: Icon(Icons.star),
                   title: Text(
