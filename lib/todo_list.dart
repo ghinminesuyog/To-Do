@@ -112,7 +112,8 @@ class _MyHomePageState extends State<MyHomePage> {
       toDo.insert(index, item);
     });
   }
-getFont() {
+
+  bool getFont() {
     font.stream.listen((data) {
       setState(() {
         isLargeFont = data;
@@ -120,6 +121,7 @@ getFont() {
     });
     return isLargeFont;
   }
+
   filterByImportance() {
     if (!isFiltered) {
       setState(
@@ -168,13 +170,13 @@ getFont() {
                     },
                     child: Icon(
                       (toDo[index].important) ? Icons.star : Icons.star_border,
-                       color: (isDarkMode)
-                      ? (toDo[index].important)
-                          ? Colors.yellow[900]
-                          : Colors.white
-                      : ((toDo[index].important)
-                          ? Colors.yellow[900]
-                          : Colors.black45),
+                      color: (isDarkMode)
+                          ? (toDo[index].important)
+                              ? Colors.yellow[900]
+                              : Colors.white
+                          : ((toDo[index].important)
+                              ? Colors.yellow[900]
+                              : Colors.black45),
                     ),
                   ),
                   title: TextField(
@@ -182,7 +184,7 @@ getFont() {
                     // keyboardType: TextInputType.multiline,
                     minLines: 1,
                     maxLines: 5,
-                    style: (getFont()) ? TextStyle(fontSize: 20) : TextStyle(),
+                    style: (getFont()) ? TextStyle(fontSize: 26) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
                       _write();
@@ -208,7 +210,7 @@ getFont() {
       itemBuilder: (context, index) {
         return Container(
           padding: EdgeInsets.only(top: 20, bottom: 30),
-           color: (!isDarkMode)
+          color: (!isDarkMode)
               ? ((index % 2 == 0) ? Color(0x00000000) : Color(0x22000000))
               : ((index % 2 == 0) ? Colors.white : Color(0x22ffffff)),
           child: Dismissible(
@@ -251,7 +253,7 @@ getFont() {
                 // keyboardType: TextInputType.multiline,
                 minLines: 1,
                 maxLines: 5,
-                style: getFont() ? TextStyle(fontSize: 20) : TextStyle(),
+                style: getFont() ? TextStyle(fontSize: 25) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
                   _write();

@@ -122,7 +122,7 @@ class MyAppState extends State<MyApp> {
                 DrawerHeader(
                   child: Text(
                     'To Do',
-                    style: TextStyle(color: Colors.white),
+                    style:getFont() ?  TextStyle(fontSize: 30,color: Colors.white) : TextStyle(color: Colors.white),
                   ),
                   decoration: BoxDecoration(color: Colors.blue),
                 ),
@@ -131,6 +131,7 @@ class MyAppState extends State<MyApp> {
                   leading: Icon(Icons.event_note),
                   title: Text(
                     'To-Do',
+                    style: getFont() ? TextStyle(fontSize: 20) : TextStyle(),
                   ),
                   onTap: () {
                     changeIndex(0);
@@ -141,6 +142,7 @@ class MyAppState extends State<MyApp> {
                   leading: Icon(Icons.star),
                   title: Text(
                     'Important To-Dos',
+                    style: getFont() ? TextStyle(fontSize: 20) : TextStyle(),
                   ),
                   onTap: () {
                     changeIndex(1);
@@ -151,6 +153,7 @@ class MyAppState extends State<MyApp> {
                   leading: Icon(Icons.settings_applications),
                   title: Text(
                     'Settings',
+                    style: getFont() ? TextStyle(fontSize: 20) : TextStyle(),
                   ),
                   onTap: () {
                     changeIndex(2);

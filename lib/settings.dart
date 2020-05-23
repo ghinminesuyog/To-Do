@@ -8,13 +8,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:todo/main.dart';
 import 'package:rxdart/rxdart.dart';
 
-
 class SettingsScreen extends StatefulWidget {
-
   final bool setIsDarkMode;
   final bool setIsLargeFont;
 
-  const SettingsScreen({Key key, this.setIsDarkMode, this.setIsLargeFont}) : super(key: key);
+  const SettingsScreen({Key key, this.setIsDarkMode, this.setIsLargeFont})
+      : super(key: key);
 
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
@@ -63,7 +62,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String valuesString = json.encode(values);
 
     file.writeAsString(valuesString);
-
   }
 
   _clearLocalStorage() async {
@@ -73,6 +71,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (e) {
       print('Error deleting local data storage');
     }
+  }
+
+  getFontSize() {
+    font.stream.listen((data) {
+      setState(() {
+        isLargeFont = data;
+      });
+    });
+
+    return isLargeFont;
   }
 
   Future<void> _deleteDialog() async {
@@ -121,7 +129,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         //   height: 100,
         // ),
         ListTile(
-          title: Text('Dark mode: '),
+          title: Text(
+            'Dark mode: ',
+            style: getFontSize() ? TextStyle(fontSize: 20) : TextStyle(),
+          ),
           trailing: Checkbox(
             value: isDarkMode,
             onChanged: (value) {
@@ -136,7 +147,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         ListTile(
-          title: Text('Large font: '),
+          title: Text(
+            'Large font: ',
+            style: getFontSize() ? TextStyle(fontSize: 20) : TextStyle(),
+          ),
           trailing: Checkbox(
             value: isLargeFont,
             onChanged: (value) {
@@ -154,7 +168,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: Colors.red[600],
           child: Text(
             'Clear storage',
-            style: TextStyle(color: Colors.white),
+            style: getFontSize() ? TextStyle(fontSize: 20, color: Colors.white) : TextStyle(color: Colors.white),
+            
           ),
           onPressed: _deleteDialog,
         ),
@@ -163,6 +178,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-
-  final theme = BehaviorSubject<bool>();
-  final font = BehaviorSubject<bool>();
+final theme = BehaviorSubject<bool>();
+final font = BehaviorSubject<bool>();
