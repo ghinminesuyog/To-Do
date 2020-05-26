@@ -5,45 +5,28 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:core';
 import 'settings.dart';
+import 'custom_classes.dart';
 
-class ImportantToDo extends StatefulWidget {
+class MyHomePage extends StatefulWidget {
   @override
-  _ImportantToDoState createState() => _ImportantToDoState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _ImportantToDoState extends State<ImportantToDo> {
+class _MyHomePageState extends State<MyHomePage> {
   List<TodoItem> toDo = [];
 
   bool isFiltered = false;
   TextEditingController searchTextController = new TextEditingController();
   String searchText = '';
-  bool isLargeFont = false;
+
   bool isDarkMode = false;
-
-  _getSettingsFile() async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/my_settings_file.txt');
-  }
-
-  readSettings() async {
-    try {
-      File file = await _getSettingsFile();
-      var settingsString = await file.readAsString();
-      var settings = jsonDecode(settingsString);
-      print(settings);
-      setState(() {
-        isLargeFont = settings['largeFont'];
-        isDarkMode = settings['dark'];
-      });
-    } catch (e) {
-      print('Problem reading settings. $e');
-    }
-  }
 
   initState() {
     super.initState();
     _read();
     readSettings();
+    getFont();
+    getTheme();
 
     searchTextController.addListener(() {
       setState(() {
@@ -61,6 +44,15 @@ class _ImportantToDoState extends State<ImportantToDo> {
   _getFilePath() async {
     final Directory directory = await getApplicationDocumentsDirectory();
     return File('${directory.path}/my_file.txt');
+  }
+
+  _write() async {
+    final file = await _getFilePath();
+
+    List<TodoItem> todos = toDo;
+    String todosString = json.encode(todos);
+
+    await file.writeAsString(todosString);
   }
 
   Future<String> _read() async {
@@ -82,17 +74,36 @@ class _ImportantToDoState extends State<ImportantToDo> {
         bool chek = task['checked'];
 
         TodoItem item = TodoItem(important: imp, text: txt, checked: chek);
-
-        if (item.important) {
-          setState(() {
-            toDo.add(item);
-          });
-        }
+        setState(() {
+          toDo.add(item);
+        });
       }
     } catch (e) {
       print("Couldn't read file because $e");
     }
     return text;
+  }
+
+  bool isLargeFont = false;
+
+  _getSettingsFile() async {
+    final Directory directory = await getApplicationDocumentsDirectory();
+    return File('${directory.path}/my_settings_file.txt');
+  }
+
+  readSettings() async {
+    try {
+      File file = await _getSettingsFile();
+      var settingsString = await file.readAsString();
+      var settings = jsonDecode(settingsString);
+      print(settings);
+      setState(() {
+        isLargeFont = settings['largeFont'];
+        isDarkMode = settings['dark'];
+      });
+    } catch (e) {
+      print('Problem reading settings. $e');
+    }
   }
 
   delete(int index) {
@@ -106,13 +117,25 @@ class _ImportantToDoState extends State<ImportantToDo> {
       toDo.insert(index, item);
     });
   }
-getFont() {
+
+   getFont() {
     font.stream.listen((data) {
       setState(() {
         isLargeFont = data;
       });
     });
-    return isLargeFont;
+  }
+
+   getTheme() {
+
+
+    //Listen to the stream:
+    theme.stream.listen((data) {
+      setState(() {
+        isDarkMode = data;
+      });
+    });
+    // return isDarkMode;
   }
   filterByImportance() {
     if (!isFiltered) {
@@ -157,17 +180,18 @@ getFont() {
                     onTap: () {
                       setState(() {
                         toDo[index].important = !toDo[index].important;
+                        _write();
                       });
                     },
                     child: Icon(
                       (toDo[index].important) ? Icons.star : Icons.star_border,
-                      color: (isDarkMode)
-                      ? (toDo[index].important)
-                          ? Colors.yellow[900]
-                          : Colors.white
-                      : ((toDo[index].important)
-                          ? Colors.yellow[900]
-                          : Colors.black45),
+                      color: (isLargeFont)
+                          ? (toDo[index].important)
+                              ? Colors.yellow[900]
+                              : Colors.white
+                          : ((toDo[index].important)
+                              ? Colors.yellow[900]
+                              : Colors.black45),
                     ),
                   ),
                   title: TextField(
@@ -175,10 +199,10 @@ getFont() {
                     // keyboardType: TextInputType.multiline,
                     minLines: 1,
                     maxLines: 5,
-                    style:
-                        (getFont()) ? TextStyle(fontSize: 20) : TextStyle(),
+                    style: (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
+                      _write();
                     },
                   ),
                   trailing: Checkbox(
@@ -186,6 +210,7 @@ getFont() {
                     onChanged: (bool value) {
                       setState(() {
                         toDo[index].checked = value;
+                        _write();
                       });
                     },
                   ),
@@ -200,9 +225,9 @@ getFont() {
       itemBuilder: (context, index) {
         return Container(
           padding: EdgeInsets.only(top: 20, bottom: 30),
-          color: (isDarkMode)
-              ? ((index % 2 == 0) ? Color(0x00000000) : Color(0x22000000))
-              : ((index % 2 == 0) ? Colors.white : Color(0x22ffffff)),
+          color: (index % 2 == 0)
+              ? (isDarkMode ? Color(0x00000000) : Color(0xffffffff))
+              : (isDarkMode ? Color(0x22000000) : Color(0x00ffffff)),
           child: Dismissible(
             key: ObjectKey(toDo[index]),
             background: stackBehindDismiss(),
@@ -228,17 +253,14 @@ getFont() {
                 onTap: () {
                   setState(() {
                     toDo[index].important = !toDo[index].important;
+                    _write();
                   });
                 },
                 child: Icon(
                   (toDo[index].important) ? Icons.star : Icons.star_border,
-                  color: (isDarkMode)
-                      ? ((toDo[index].important)
-                          ? Colors.yellow[900]
-                          : Colors.white)
-                      : ((toDo[index].important)
-                          ? Colors.yellow[900]
-                          : Colors.black45),
+                  color: (toDo[index].important)
+                      ? Colors.yellow[900]
+                      : isDarkMode ? Colors.white : Colors.black45,
                 ),
               ),
               title: TextField(
@@ -246,9 +268,10 @@ getFont() {
                 // keyboardType: TextInputType.multiline,
                 minLines: 1,
                 maxLines: 5,
-                style: (getFont()) ? TextStyle(fontSize: 20) : TextStyle(),
+                style: (isLargeFont) ? TextStyle(fontSize: 25) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
+                  _write();
                 },
               ),
               trailing: Checkbox(
@@ -256,6 +279,7 @@ getFont() {
                 onChanged: (bool value) {
                   setState(() {
                     toDo[index].checked = value;
+                    _write();
                   });
                 },
               ),
@@ -265,27 +289,27 @@ getFont() {
       },
     );
 
-    // var addNewButton = FloatingActionButton(
-    //   onPressed: () {
-    //     setState(
-    //       () {
-    //         toDo.insert(
-    //           0,
-    //           TodoItem(
-    //             checked: false,
-    //             text: '',
-    //             important: false,
-    //           ),
-    //         );
-    //       },
-    //     );
-    //   },
-    //   tooltip: 'Create a new task',
-    //   child: Icon(
-    //     Icons.add,
-    //     // color: Colors.white,
-    //   ),
-    // );
+    var addNewButton = FloatingActionButton(
+      onPressed: () {
+        setState(
+          () {
+            toDo.insert(
+              0,
+              TodoItem(
+                checked: false,
+                text: '',
+                important: false,
+              ),
+            );
+          },
+        );
+      },
+      tooltip: 'Create a new task',
+      child: Icon(
+        Icons.add,
+        // color: Colors.white,
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -301,7 +325,7 @@ getFont() {
           ),
         ],
       ),
-      // floatingActionButton: addNewButton,
+      floatingActionButton: addNewButton,
       body: Center(
         child: ((searchText == '' || searchText == null)
             ? toDoList
@@ -311,12 +335,3 @@ getFont() {
   }
 }
 
-class TodoItem {
-  bool important;
-  String text;
-  bool checked;
-  TodoItem({this.important, this.text, this.checked});
-
-  Map<String, dynamic> toJson() =>
-      {'important': important, 'text': text, 'checked': checked};
-}

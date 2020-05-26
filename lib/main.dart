@@ -4,8 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
-import 'todo_list.dart';
-import 'important_todo_list.dart';
+import 'home_todo_list.dart';
 import 'settings.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -58,7 +57,6 @@ class MyAppState extends State<MyApp> {
 
   List<Widget> _screens = [
     MyHomePage(),
-    ImportantToDo(),
     SettingsScreen(),
   ];
   var _currentIndex = 0;
@@ -74,6 +72,8 @@ class MyAppState extends State<MyApp> {
     super.initState();
 
     readSettings();
+    getTheme();
+    getFont();
   }
 
   getTheme() {
@@ -83,7 +83,6 @@ class MyAppState extends State<MyApp> {
         isDarkMode = data;
       });
     });
-    return isDarkMode;
   }
 
   getFont() {
@@ -92,7 +91,6 @@ class MyAppState extends State<MyApp> {
         isLargeFont = data;
       });
     });
-    return isLargeFont;
   }
 
   @override
@@ -108,21 +106,36 @@ class MyAppState extends State<MyApp> {
       child: MaterialApp(
         title: 'To Do',
         debugShowCheckedModeBanner: false,
-        theme: getTheme() ? darkTheme : lightTheme,
+        theme: isDarkMode ? darkTheme : lightTheme,
         home: Scaffold(
           appBar: AppBar(
             title: Text(
               'To Do',
-              style: (getFont()) ? TextStyle(fontSize: 28) : TextStyle(),
+              style: (isLargeFont) ? TextStyle(fontSize: 28) : TextStyle(),
             ),
           ),
           drawer: Drawer(
             child: ListView(
               children: <Widget>[
                 DrawerHeader(
-                  child: Text(
-                    'To Do',
-                    style:getFont() ?  TextStyle(fontSize: 30,color: Colors.white) : TextStyle(color: Colors.white),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Text(
+                        'To Do',
+                        style: (isLargeFont)
+                            ? TextStyle(fontSize: 30, color: Colors.white)
+                            : TextStyle(color: Colors.white),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.settings),
+                        color: Colors.white,
+                        onPressed: () {
+                          changeIndex(_screens.length - 1);
+                        },
+                      ),
+                    ],
                   ),
                   decoration: BoxDecoration(color: Colors.blue),
                 ),
@@ -131,32 +144,10 @@ class MyAppState extends State<MyApp> {
                   leading: Icon(Icons.event_note),
                   title: Text(
                     'To-Do',
-                    style: getFont() ? TextStyle(fontSize: 20) : TextStyle(),
+                    style: (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
                   ),
                   onTap: () {
                     changeIndex(0);
-                  },
-                ),
-                ListTile(
-                  selected: (_currentIndex == 1),
-                  leading: Icon(Icons.star),
-                  title: Text(
-                    'Important To-Dos',
-                    style: getFont() ? TextStyle(fontSize: 20) : TextStyle(),
-                  ),
-                  onTap: () {
-                    changeIndex(1);
-                  },
-                ),
-                ListTile(
-                  selected: (_currentIndex == 2),
-                  leading: Icon(Icons.settings_applications),
-                  title: Text(
-                    'Settings',
-                    style: getFont() ? TextStyle(fontSize: 20) : TextStyle(),
-                  ),
-                  onTap: () {
-                    changeIndex(2);
                   },
                 ),
               ],

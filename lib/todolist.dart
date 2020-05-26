@@ -5,13 +5,19 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:core';
 import 'settings.dart';
+import 'custom_classes.dart';
 
-class MyHomePage extends StatefulWidget {
+class ToDoListPage extends StatefulWidget {
+
+  final String listName;
+
+  ToDoListPage({Key key, this.listName}) : super(key:key);
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _ToDoListPageState createState() => _ToDoListPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _ToDoListPageState extends State<ToDoListPage> {
   List<TodoItem> toDo = [];
 
   bool isFiltered = false;
@@ -23,6 +29,10 @@ class _MyHomePageState extends State<MyHomePage> {
   initState() {
     super.initState();
     _read();
+    readSettings();
+    getFont();
+    getTheme();
+
     searchTextController.addListener(() {
       setState(() {
         searchText = searchTextController.text;
@@ -38,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _getFilePath() async {
     final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/my_file.txt');
+    return File('${directory.path}/${widget.listName}.txt');
   }
 
   _write() async {
@@ -113,15 +123,25 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  bool getFont() {
+   getFont() {
     font.stream.listen((data) {
       setState(() {
         isLargeFont = data;
       });
     });
-    return isLargeFont;
   }
 
+   getTheme() {
+
+
+    //Listen to the stream:
+    theme.stream.listen((data) {
+      setState(() {
+        isDarkMode = data;
+      });
+    });
+    // return isDarkMode;
+  }
   filterByImportance() {
     if (!isFiltered) {
       setState(
@@ -170,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                     child: Icon(
                       (toDo[index].important) ? Icons.star : Icons.star_border,
-                      color: (isDarkMode)
+                      color: (isLargeFont)
                           ? (toDo[index].important)
                               ? Colors.yellow[900]
                               : Colors.white
@@ -184,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     // keyboardType: TextInputType.multiline,
                     minLines: 1,
                     maxLines: 5,
-                    style: (getFont()) ? TextStyle(fontSize: 26) : TextStyle(),
+                    style: (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
                       _write();
@@ -210,9 +230,9 @@ class _MyHomePageState extends State<MyHomePage> {
       itemBuilder: (context, index) {
         return Container(
           padding: EdgeInsets.only(top: 20, bottom: 30),
-          color: (!isDarkMode)
-              ? ((index % 2 == 0) ? Color(0x00000000) : Color(0x22000000))
-              : ((index % 2 == 0) ? Colors.white : Color(0x22ffffff)),
+          color: (index % 2 == 0)
+              ? (isDarkMode ? Color(0x00000000) : Color(0xffffffff))
+              : (isDarkMode ? Color(0x22000000) : Color(0x00ffffff)),
           child: Dismissible(
             key: ObjectKey(toDo[index]),
             background: stackBehindDismiss(),
@@ -245,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   (toDo[index].important) ? Icons.star : Icons.star_border,
                   color: (toDo[index].important)
                       ? Colors.yellow[900]
-                      : Colors.black45,
+                      : isDarkMode ? Colors.white : Colors.black45,
                 ),
               ),
               title: TextField(
@@ -253,7 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 // keyboardType: TextInputType.multiline,
                 minLines: 1,
                 maxLines: 5,
-                style: getFont() ? TextStyle(fontSize: 25) : TextStyle(),
+                style: (isLargeFont) ? TextStyle(fontSize: 25) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
                   _write();
@@ -320,12 +340,3 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class TodoItem {
-  bool important;
-  String text;
-  bool checked;
-  TodoItem({this.important, this.text, this.checked});
-
-  Map<String, dynamic> toJson() =>
-      {'important': important, 'text': text, 'checked': checked};
-}

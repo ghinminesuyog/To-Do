@@ -52,6 +52,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   initState() {
     super.initState();
     readSettings();
+    getFontSize();
+    
   }
 
   _writeSettings() async {
@@ -80,7 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
     });
 
-    return isLargeFont;
+    // return isLargeFont;
   }
 
   Future<void> _deleteDialog() async {
@@ -131,7 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ListTile(
           title: Text(
             'Dark mode: ',
-            style: getFontSize() ? TextStyle(fontSize: 20) : TextStyle(),
+            style: (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
           ),
           trailing: Checkbox(
             value: isDarkMode,
@@ -149,7 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ListTile(
           title: Text(
             'Large font: ',
-            style: getFontSize() ? TextStyle(fontSize: 20) : TextStyle(),
+            style: (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
           ),
           trailing: Checkbox(
             value: isLargeFont,
@@ -168,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: Colors.red[600],
           child: Text(
             'Clear storage',
-            style: getFontSize() ? TextStyle(fontSize: 20, color: Colors.white) : TextStyle(color: Colors.white),
+            style: (isLargeFont) ? TextStyle(fontSize: 20, color: Colors.white) : TextStyle(color: Colors.white),
             
           ),
           onPressed: _deleteDialog,
@@ -178,5 +180,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-final theme = BehaviorSubject<bool>();
-final font = BehaviorSubject<bool>();
+final theme = new BehaviorSubject<bool>();
+final font = new BehaviorSubject<bool>();
