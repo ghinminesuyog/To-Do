@@ -20,6 +20,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String searchText = '';
 
   bool isDarkMode = false;
+  bool isLargeFont = false;
 
   initState() {
     super.initState();
@@ -84,7 +85,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return text;
   }
 
-  bool isLargeFont = false;
 
   _getSettingsFile() async {
     final Directory directory = await getApplicationDocumentsDirectory();
@@ -127,15 +127,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
    getTheme() {
-
-
     //Listen to the stream:
     theme.stream.listen((data) {
       setState(() {
         isDarkMode = data;
       });
     });
-    // return isDarkMode;
   }
   filterByImportance() {
     if (!isFiltered) {

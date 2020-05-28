@@ -35,6 +35,8 @@ class MyAppState extends State<MyApp> {
   bool isDarkMode = false;
   bool isLargeFont = false;
 
+  List<String> todoLists = [];
+
   _getSettingsFile() async {
     final Directory directory = await getApplicationDocumentsDirectory();
     return File('${directory.path}/my_settings_file.txt');
@@ -74,6 +76,8 @@ class MyAppState extends State<MyApp> {
     readSettings();
     getTheme();
     getFont();
+
+    // todoLists = ['List 1', 'List 2'];
   }
 
   getTheme() {
@@ -115,7 +119,7 @@ class MyAppState extends State<MyApp> {
             ),
           ),
           drawer: Drawer(
-            child: ListView(
+            child: Column(
               children: <Widget>[
                 DrawerHeader(
                   child: Row(
@@ -144,10 +148,22 @@ class MyAppState extends State<MyApp> {
                   leading: Icon(Icons.event_note),
                   title: Text(
                     'To-Do',
-                    style: (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
+                    style:
+                        (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
                   ),
                   onTap: () {
                     changeIndex(0);
+                  },
+                ),
+                ListView.builder(
+                  //Helps build a listview builder inside a list view:
+                  shrinkWrap: true,
+                  itemCount: todoLists.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      // leading: Icon(Icons.check_circle),
+                      title: Text(todoLists[index]),
+                    );
                   },
                 ),
               ],
