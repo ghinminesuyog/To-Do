@@ -1,12 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:todo/main.dart';
 import 'package:rxdart/rxdart.dart';
+import 'readAndWriteOperations.dart';
 
 class SettingsScreen extends StatefulWidget {
   final bool setIsDarkMode;
@@ -23,52 +20,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool isDarkMode = false;
   bool isLargeFont = false;
 
-  _getToDoListFilePath() async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/my_file.txt');
-  }
-
-  _getSettingsFile() async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/my_settings_file.txt');
-  }
-
-  readSettings() async {
-    try {
-      File file = await _getSettingsFile();
-      var settingsString = await file.readAsString();
-      var settings = jsonDecode(settingsString);
-      print(settings);
-      setState(() {
-        isDarkMode = settings['dark'];
-        isLargeFont = settings['largeFont'];
-      });
-    } catch (e) {
-      print('Problem reading settings');
-      print(e);
-    }
-  }
-
   initState() {
     super.initState();
-    readSettings();
+    readSettings().then(
+      (value) => setState(
+        () {
+          isDarkMode = value['dark'];
+          isLargeFont = value['largeFont'];
+        },
+      ),
+    );
     getFontSize();
-    
   }
 
-  _writeSettings() async {
-    final File file = await _getSettingsFile();
-
-    var values = {'dark': isDarkMode, 'largeFont': isLargeFont};
-
-    String valuesString = json.encode(values);
-
-    file.writeAsString(valuesString);
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   _clearLocalStorage() async {
     try {
-      final File file = await _getToDoListFilePath();
+      final File file = await getToDoListFilePath();
       file.delete();
     } catch (e) {
       print('Error deleting local data storage');
@@ -76,13 +48,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   getFontSize() {
-    font.stream.listen((data) {
-      setState(() {
-        isLargeFont = data;
-      });
-    });
-
-    // return isLargeFont;
+    font.stream.listen(
+      (data) {
+        setState(
+          () {
+            isLargeFont = data;
+          },
+        );
+      },
+    );
   }
 
   Future<void> _deleteDialog() async {
@@ -138,13 +112,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           trailing: Checkbox(
             value: isDarkMode,
             onChanged: (value) {
-              setState(
-                () {
-                  isDarkMode = value;
-                  _writeSettings();
-                  theme.add(value);
-                },
-              );
+              setState(() {
+                isDarkMode = value;
+                theme.add(value);
+              });
+              writeSettings(isDarkMode, isLargeFont);
             },
           ),
         ),
@@ -159,7 +131,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               setState(
                 () {
                   isLargeFont = value;
-                  _writeSettings();
+                  writeSettings(isDarkMode, isLargeFont);
                   font.add(value);
                 },
               );
@@ -170,8 +142,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: Colors.red[600],
           child: Text(
             'Clear storage',
-            style: (isLargeFont) ? TextStyle(fontSize: 20, color: Colors.white) : TextStyle(color: Colors.white),
-            
+            style: (isLargeFont)
+                ? TextStyle(fontSize: 20, color: Colors.white)
+                : TextStyle(color: Colors.white),
           ),
           onPressed: _deleteDialog,
         ),

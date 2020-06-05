@@ -14,4 +14,15 @@ class ToDoList{
 
   ToDoList({this.listName,this.todos});
 
+   Map<String, dynamic> toJson() =>
+      { listName: todos};
+
+}
+
+class SelectedScreen{
+  bool home;
+  bool settings;
+  int listIndex;
+
+  SelectedScreen({this.home,this.settings,this.listIndex});
 }

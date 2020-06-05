@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:core';
 import 'settings.dart';
 import 'custom_classes.dart';
+import 'readAndWriteOperations.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -24,10 +26,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   initState() {
     super.initState();
-    _read();
-    readSettings();
-    getFont();
-    getTheme();
+    read('zyxwvu').then(
+      (value) => setState(() {
+        toDo = value;
+      }),
+    );
+    readSettings().then(
+      (value){
+        setState(() {
+          isDarkMode = value["dark"];
+          isLargeFont = value["largeFont"];
+        });
+      }
+    );
+    // getFont();
+    // getTheme();
 
     searchTextController.addListener(() {
       setState(() {
@@ -42,83 +55,23 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  _getFilePath() async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/my_file.txt');
-  }
-
-  _write() async {
-    final file = await _getFilePath();
-
-    List<TodoItem> todos = toDo;
-    String todosString = json.encode(todos);
-
-    await file.writeAsString(todosString);
-  }
-
-  Future<String> _read() async {
-    String text;
-    try {
-      final file = await _getFilePath();
-
-      text = await file.readAsString();
-
-      var tasks = jsonDecode(text);
-
-      setState(() {
-        toDo.clear();
-      });
-
-      for (var task in tasks) {
-        String txt = task['text'];
-        bool imp = task['important'];
-        bool chek = task['checked'];
-
-        TodoItem item = TodoItem(important: imp, text: txt, checked: chek);
-        setState(() {
-          toDo.add(item);
-        });
-      }
-    } catch (e) {
-      print("Couldn't read file because $e");
-    }
-    return text;
-  }
-
-
-  _getSettingsFile() async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/my_settings_file.txt');
-  }
-
-  readSettings() async {
-    try {
-      File file = await _getSettingsFile();
-      var settingsString = await file.readAsString();
-      var settings = jsonDecode(settingsString);
-      print(settings);
-      setState(() {
-        isLargeFont = settings['largeFont'];
-        isDarkMode = settings['dark'];
-      });
-    } catch (e) {
-      print('Problem reading settings. $e');
-    }
-  }
+  
 
   delete(int index) {
     setState(() {
       toDo.removeAt(index);
     });
+    write(toDo);
   }
 
   undoDelete(int index, TodoItem item) {
     setState(() {
       toDo.insert(index, item);
     });
+    write(toDo);
   }
 
-   getFont() {
+  getFont() {
     font.stream.listen((data) {
       setState(() {
         isLargeFont = data;
@@ -126,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-   getTheme() {
+  getTheme() {
     //Listen to the stream:
     theme.stream.listen((data) {
       setState(() {
@@ -134,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     });
   }
+
   filterByImportance() {
     if (!isFiltered) {
       setState(
@@ -148,7 +102,11 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       );
     } else {
-      _read();
+      read('zyxwvu').then((value) {
+        setState(() {
+          toDo = value;
+        });
+      });
       isFiltered = false;
     }
   }
@@ -177,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onTap: () {
                       setState(() {
                         toDo[index].important = !toDo[index].important;
-                        _write();
+                        write(toDo);
                       });
                     },
                     child: Icon(
@@ -196,10 +154,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     // keyboardType: TextInputType.multiline,
                     minLines: 1,
                     maxLines: 5,
-                    style: (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
+                    style:
+                        (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
-                      _write();
+                      write(toDo);
                     },
                   ),
                   trailing: Checkbox(
@@ -207,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (bool value) {
                       setState(() {
                         toDo[index].checked = value;
-                        _write();
+                        write(toDo);
                       });
                     },
                   ),
@@ -250,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onTap: () {
                   setState(() {
                     toDo[index].important = !toDo[index].important;
-                    _write();
+                    write(toDo);
                   });
                 },
                 child: Icon(
@@ -268,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: (isLargeFont) ? TextStyle(fontSize: 25) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
-                  _write();
+                  write(toDo);
                 },
               ),
               trailing: Checkbox(
@@ -276,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onChanged: (bool value) {
                   setState(() {
                     toDo[index].checked = value;
-                    _write();
+                    write(toDo);
                   });
                 },
               ),

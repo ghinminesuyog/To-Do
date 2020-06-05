@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:todo/custom_classes.dart';
+import 'package:todo/todolist.dart';
 import 'dart:io';
 import 'home_todo_list.dart';
 import 'settings.dart';
-import 'package:path_provider/path_provider.dart';
+import 'readAndWriteOperations.dart';
 
 void main() {
   if (!kIsWeb && Platform.isMacOS) {
@@ -26,6 +28,7 @@ var lightTheme = ThemeData(
 );
 
 var darkTheme = ThemeData.dark();
+TextEditingController newListName = new TextEditingController();
 
 class MyApp extends StatefulWidget {
   MyAppState createState() => MyAppState();
@@ -37,37 +40,20 @@ class MyAppState extends State<MyApp> {
 
   List<String> todoLists = [];
 
-  _getSettingsFile() async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/my_settings_file.txt');
-  }
+  // List<Widget> _screens = [
+  //   MyHomePage(),
+  //   SettingsScreen(),
+  // ];
 
-  readSettings() async {
-    try {
-      File file = await _getSettingsFile();
-      var settingsString = await file.readAsString();
-      var settings = jsonDecode(settingsString);
-      print(settings);
-      setState(() {
-        isDarkMode = settings['dark'];
-        isLargeFont = settings['largeFont'];
-      });
-    } catch (e) {
-      print('Problem reading settings. $e');
-    }
-  }
+  Widget _screen;
+  SelectedScreen _currentIndex =
+      SelectedScreen(home: true, settings: false, listIndex: null);
 
-  List<Widget> _screens = [
-    MyHomePage(),
-    SettingsScreen(),
-  ];
-  var _currentIndex = 0;
-
-  changeIndex(int ind) {
-    setState(() {
-      _currentIndex = ind;
-    });
-  }
+  // changeIndex(int ind) {
+  //   setState(() {
+  //     _currentIndex = ind;
+  //   });
+  // }
 
   @override
   void initState() {
@@ -77,7 +63,16 @@ class MyAppState extends State<MyApp> {
     getTheme();
     getFont();
 
-    // todoLists = ['List 1', 'List 2'];
+    todoLists = fakeLists();
+
+    _screen = MyHomePage();
+
+    readSettings().then((value) {
+      setState(() {
+        isDarkMode = value["dark"];
+        isLargeFont = value["largeFont"];
+      });
+    });
   }
 
   getTheme() {
@@ -97,81 +92,180 @@ class MyAppState extends State<MyApp> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      //Dismiss keyboard when tapped elsewhere:
-      onTap: () {
-        FocusScopeNode currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.unfocus();
-        }
-      },
-      child: MaterialApp(
-        title: 'To Do',
-        debugShowCheckedModeBanner: false,
-        theme: isDarkMode ? darkTheme : lightTheme,
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text(
-              'To Do',
-              style: (isLargeFont) ? TextStyle(fontSize: 28) : TextStyle(),
-            ),
-          ),
-          drawer: Drawer(
-            child: Column(
+  Future<void> _newListDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('New list'),
+          content: SingleChildScrollView(
+            child: ListBody(
               children: <Widget>[
-                DrawerHeader(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Text(
-                        'To Do',
-                        style: (isLargeFont)
-                            ? TextStyle(fontSize: 30, color: Colors.white)
-                            : TextStyle(color: Colors.white),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.settings),
-                        color: Colors.white,
-                        onPressed: () {
-                          changeIndex(_screens.length - 1);
-                        },
-                      ),
-                    ],
-                  ),
-                  decoration: BoxDecoration(color: Colors.blue),
-                ),
-                ListTile(
-                  selected: (_currentIndex == 0),
-                  leading: Icon(Icons.event_note),
-                  title: Text(
-                    'To-Do',
-                    style:
-                        (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
-                  ),
-                  onTap: () {
-                    changeIndex(0);
-                  },
-                ),
-                ListView.builder(
-                  //Helps build a listview builder inside a list view:
-                  shrinkWrap: true,
-                  itemCount: todoLists.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      // leading: Icon(Icons.check_circle),
-                      title: Text(todoLists[index]),
-                    );
-                  },
+                Text('Choose a name for the new list'),
+                TextField(
+                  controller: newListName,
                 ),
               ],
             ),
           ),
-          body: _screens[_currentIndex],
-        ),
-      ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Create'),
+              // color: Colors.red,
+              // textColor: Colors.white,
+              onPressed: () {
+                print('Create');
+                Navigator.of(context).pop();
+                addNewList(newListName.text);
+              },
+            ),
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                print('Cancel');
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
+
+  addNewList(String listName) {
+    print('Created $listName');
+    setState(() {
+      _screen = ToDoListPage(
+        listName: listName,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'To Do',
+      debugShowCheckedModeBanner: false,
+      theme: isDarkMode ? darkTheme : lightTheme,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'To Do',
+            style: (isLargeFont) ? TextStyle(fontSize: 28) : TextStyle(),
+          ),
+        ),
+        drawer: Drawer(
+          child: StreamBuilder<Object>(
+              stream: null,
+              builder: (context, snapshot) {
+                return Column(
+                  children: <Widget>[
+                    DrawerHeader(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Text(
+                            'To Do',
+                            style: (isLargeFont)
+                                ? TextStyle(
+                                    fontSize: 30,
+                                  )
+                                : TextStyle(),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.playlist_add),
+                            onPressed: () {
+                              _newListDialog(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      // decoration: BoxDecoration(color: Colors.blue),
+                    ),
+                    ListTile(
+                      selected: (_currentIndex.home == true),
+                      leading: Icon(Icons.event_note),
+                      title: Text(
+                        'To-Do',
+                        style: (isLargeFont)
+                            ? TextStyle(fontSize: 20)
+                            : TextStyle(),
+                      ),
+                      onTap: () {
+                        // changeIndex(0);
+                        setState(() {
+                          _screen = MyHomePage();
+                          _currentIndex = SelectedScreen(
+                              home: true, settings: false, listIndex: null);
+                        });
+                      },
+                    ),
+                    //TODO: Set state to change _screen and "selected"
+                    Expanded(
+                      child: ListView.builder(
+                        //Helps build a listview builder inside a list view:
+                        shrinkWrap: true,
+                        itemCount: todoLists.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            // leading: Icon(Icons.check_circle),
+                            selected: _currentIndex.listIndex != index,
+                            title: Text(
+                              todoLists[index],
+                              style: (isLargeFont)
+                                  ? TextStyle(fontSize: 20)
+                                  : TextStyle(),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                //ToDo: list name
+                                _screen = ToDoListPage();
+
+                                _currentIndex = SelectedScreen(
+                                    home: false,
+                                    settings: false,
+                                    listIndex: index);
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      child: ListTile(
+                        selected: (_currentIndex.settings == true),
+                        leading: Icon(Icons.settings),
+                        title: Text(
+                          'Settings',
+                          style: (isLargeFont)
+                              ? TextStyle(fontSize: 20)
+                              : TextStyle(),
+                        ),
+                        onTap: () {
+                          setState(
+                            () {
+                              _screen = SettingsScreen();
+                              _currentIndex = SelectedScreen(
+                                  home: false, settings: true, listIndex: null);
+                            },
+                          );
+                        },
+                      ),
+                    )
+                  ],
+                );
+              }),
+        ),
+        body: _screen,
+      ),
+    );
+    // );
+  }
+}
+
+List<String> fakeLists() {
+  return [];
 }

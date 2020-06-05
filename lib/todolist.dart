@@ -6,10 +6,11 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:core';
 import 'settings.dart';
 import 'custom_classes.dart';
+import 'readAndWriteOperations.dart';
 
 class ToDoListPage extends StatefulWidget {
 
-  final String listName;
+  @required final String listName;
 
   ToDoListPage({Key key, this.listName}) : super(key:key);
 
@@ -28,11 +29,23 @@ class _ToDoListPageState extends State<ToDoListPage> {
 
   initState() {
     super.initState();
-    _read();
-    readSettings();
-    getFont();
-    getTheme();
 
+readSettings().then(
+      (value){
+        setState(() {
+          isDarkMode = value["dark"];
+          isLargeFont = value["largeFont"];
+        });
+      }
+    );
+
+read(widget.listName).then(
+      (value) => setState(() {
+        toDo = value;
+      }),
+    );
+
+    
     searchTextController.addListener(() {
       setState(() {
         searchText = searchTextController.text;
@@ -46,74 +59,20 @@ class _ToDoListPageState extends State<ToDoListPage> {
     super.dispose();
   }
 
-  _getFilePath() async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/${widget.listName}.txt');
-  }
 
-  _write() async {
-    final file = await _getFilePath();
 
-    List<TodoItem> todos = toDo;
-    String todosString = json.encode(todos);
-
-    await file.writeAsString(todosString);
-  }
-
-  Future<String> _read() async {
-    String text;
-    try {
-      final file = await _getFilePath();
-
-      text = await file.readAsString();
-
-      var tasks = jsonDecode(text);
-
-      setState(() {
-        toDo.clear();
-      });
-
-      for (var task in tasks) {
-        String txt = task['text'];
-        bool imp = task['important'];
-        bool chek = task['checked'];
-
-        TodoItem item = TodoItem(important: imp, text: txt, checked: chek);
-        setState(() {
-          toDo.add(item);
-        });
-      }
-    } catch (e) {
-      print("Couldn't read file because $e");
-    }
-    return text;
-  }
+  
 
   bool isLargeFont = false;
 
-  _getSettingsFile() async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/my_settings_file.txt');
-  }
-
-  readSettings() async {
-    try {
-      File file = await _getSettingsFile();
-      var settingsString = await file.readAsString();
-      var settings = jsonDecode(settingsString);
-      print(settings);
-      setState(() {
-        isLargeFont = settings['largeFont'];
-        isDarkMode = settings['dark'];
-      });
-    } catch (e) {
-      print('Problem reading settings. $e');
-    }
-  }
 
   delete(int index) {
     setState(() {
       toDo.removeAt(index);
+    });
+
+    Future.delayed(Duration(seconds: 15),(){
+      write(toDo);
     });
   }
 
@@ -156,7 +115,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
         },
       );
     } else {
-      _read();
+    read(widget.listName);
       isFiltered = false;
     }
   }
@@ -185,7 +144,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                     onTap: () {
                       setState(() {
                         toDo[index].important = !toDo[index].important;
-                        _write();
+                        write(toDo);
                       });
                     },
                     child: Icon(
@@ -207,7 +166,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                     style: (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
-                      _write();
+                      write(toDo);
                     },
                   ),
                   trailing: Checkbox(
@@ -215,7 +174,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                     onChanged: (bool value) {
                       setState(() {
                         toDo[index].checked = value;
-                        _write();
+                        write(toDo);
                       });
                     },
                   ),
@@ -258,7 +217,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                 onTap: () {
                   setState(() {
                     toDo[index].important = !toDo[index].important;
-                    _write();
+                    write(toDo);
                   });
                 },
                 child: Icon(
@@ -276,7 +235,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                 style: (isLargeFont) ? TextStyle(fontSize: 25) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
-                  _write();
+                  write(toDo);
                 },
               ),
               trailing: Checkbox(
@@ -284,7 +243,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                 onChanged: (bool value) {
                   setState(() {
                     toDo[index].checked = value;
-                    _write();
+                    write(toDo);
                   });
                 },
               ),
