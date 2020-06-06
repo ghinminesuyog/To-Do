@@ -40,6 +40,25 @@ class MyAppState extends State<MyApp> {
 
   List<String> todoLists = [];
 
+
+
+  changeScreen(index) {
+    setState(() {
+
+    Widget newWidget = new ToDoListPage(listName: todoLists[index]);
+
+      _currentIndex =
+          new SelectedScreen(home: false, settings: false, listIndex: index);
+
+      _screen =  newWidget;
+
+      print("Wanna view: ${todoLists[index]}");
+
+      // print("${_screen}");
+    });
+  }
+
+
   // List<Widget> _screens = [
   //   MyHomePage(),
   //   SettingsScreen(),
@@ -63,7 +82,9 @@ class MyAppState extends State<MyApp> {
     getTheme();
     getFont();
 
-    todoLists = fakeLists();
+    getAllListNames().then((value) {
+      todoLists = value;
+    });
 
     _screen = MyHomePage();
 
@@ -196,39 +217,33 @@ class MyAppState extends State<MyApp> {
                       onTap: () {
                         // changeIndex(0);
                         setState(() {
-                          _screen = MyHomePage();
+                          _screen = new MyHomePage();
                           _currentIndex = SelectedScreen(
                               home: true, settings: false, listIndex: null);
                         });
                       },
                     ),
-                    //TODO: Set state to change _screen and "selected"
+                    //TODO: Set state to change _screen
                     Expanded(
                       child: ListView.builder(
                         //Helps build a listview builder inside a list view:
                         shrinkWrap: true,
                         itemCount: todoLists.length,
-                        itemBuilder: (context, index) {
+                        itemBuilder: (context, ind) {
                           return ListTile(
                             // leading: Icon(Icons.check_circle),
-                            selected: _currentIndex.listIndex != index,
+                            selected: _currentIndex.listIndex == ind,
                             title: Text(
-                              todoLists[index],
+                              todoLists[ind],
                               style: (isLargeFont)
                                   ? TextStyle(fontSize: 20)
                                   : TextStyle(),
                             ),
-                            onTap: () {
-                              setState(() {
-                                //ToDo: list name
-                                _screen = ToDoListPage();
-
-                                _currentIndex = SelectedScreen(
-                                    home: false,
-                                    settings: false,
-                                    listIndex: index);
-                              });
-                            },
+                            onTap: 
+                              (){
+                                changeScreen(ind);
+                              },
+                            
                           );
                         },
                       ),

@@ -61,14 +61,14 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       toDo.removeAt(index);
     });
-    write(toDo);
+    write(toDo,'zyxwvu');
   }
 
   undoDelete(int index, TodoItem item) {
     setState(() {
       toDo.insert(index, item);
     });
-    write(toDo);
+    write(toDo,'zyxwvu');
   }
 
   getFont() {
@@ -135,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onTap: () {
                       setState(() {
                         toDo[index].important = !toDo[index].important;
-                        write(toDo);
+                        write(toDo,'zyxwvu');
                       });
                     },
                     child: Icon(
@@ -158,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
-                      write(toDo);
+                      write(toDo,'zyxwvu');
                     },
                   ),
                   trailing: Checkbox(
@@ -166,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (bool value) {
                       setState(() {
                         toDo[index].checked = value;
-                        write(toDo);
+                        write(toDo,'zyxwvu');
                       });
                     },
                   ),
@@ -209,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onTap: () {
                   setState(() {
                     toDo[index].important = !toDo[index].important;
-                    write(toDo);
+                    write(toDo,'zyxwvu');
                   });
                 },
                 child: Icon(
@@ -227,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: (isLargeFont) ? TextStyle(fontSize: 25) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
-                  write(toDo);
+                  write(toDo,'zyxwvu');
                 },
               ),
               trailing: Checkbox(
@@ -235,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onChanged: (bool value) {
                   setState(() {
                     toDo[index].checked = value;
-                    write(toDo);
+                    write(toDo,'zyxwvu');
                   });
                 },
               ),

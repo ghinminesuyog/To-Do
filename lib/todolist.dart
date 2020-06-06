@@ -1,8 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'dart:core';
 import 'settings.dart';
 import 'custom_classes.dart';
@@ -72,7 +69,7 @@ read(widget.listName).then(
     });
 
     Future.delayed(Duration(seconds: 15),(){
-      write(toDo);
+      write(toDo,widget.listName);
     });
   }
 
@@ -144,7 +141,7 @@ read(widget.listName).then(
                     onTap: () {
                       setState(() {
                         toDo[index].important = !toDo[index].important;
-                        write(toDo);
+                        write(toDo,widget.listName);
                       });
                     },
                     child: Icon(
@@ -166,7 +163,7 @@ read(widget.listName).then(
                     style: (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
-                      write(toDo);
+                      write(toDo,widget.listName);
                     },
                   ),
                   trailing: Checkbox(
@@ -174,7 +171,7 @@ read(widget.listName).then(
                     onChanged: (bool value) {
                       setState(() {
                         toDo[index].checked = value;
-                        write(toDo);
+                        write(toDo,widget.listName);
                       });
                     },
                   ),
@@ -217,7 +214,7 @@ read(widget.listName).then(
                 onTap: () {
                   setState(() {
                     toDo[index].important = !toDo[index].important;
-                    write(toDo);
+                    write(toDo,widget.listName);
                   });
                 },
                 child: Icon(
@@ -235,7 +232,7 @@ read(widget.listName).then(
                 style: (isLargeFont) ? TextStyle(fontSize: 25) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
-                  write(toDo);
+                  write(toDo,widget.listName);
                 },
               ),
               trailing: Checkbox(
@@ -243,7 +240,7 @@ read(widget.listName).then(
                 onChanged: (bool value) {
                   setState(() {
                     toDo[index].checked = value;
-                    write(toDo);
+                    write(toDo,widget.listName);
                   });
                 },
               ),
