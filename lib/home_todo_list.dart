@@ -22,6 +22,8 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController searchTextController = new TextEditingController();
   String searchText = '';
 
+  String sharableList = '';
+
   bool isDarkMode = false;
   bool isLargeFont = false;
   bool showSearchBar = false;
@@ -292,6 +294,12 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.filter_list),
             tooltip: 'Filter by importance',
           ),
+          IconButton(
+            onPressed: () {
+              shareToDoList(convertToSharableString(toDo), 'My To Do List');
+            },
+            icon: Icon(Icons.share),
+          )
         ],
       ),
       floatingActionButton: addNewButton,

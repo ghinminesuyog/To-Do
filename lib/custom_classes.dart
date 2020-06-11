@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:convert';
 
@@ -136,7 +137,7 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                             ? TextStyle(
                                 fontSize: 30,
                               )
-                            : TextStyle(),
+                            : TextStyle(fontSize: 20),
                       ),
                       IconButton(
                         icon: Icon(Icons.playlist_add),
@@ -149,16 +150,16 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                   // decoration: BoxDecoration(color: Colors.blue),
                 ),
                 ListTile(
-                  selected: (_currentIndex.home == true),
-                  leading: Icon(Icons.event_note),
+                  selected: (currentIndex.home == true),
+                  leading: Icon(Icons.home),
                   title: Text(
-                    'To-Do',
+                    'Home',
                     style:
                         (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
                   ),
                   onTap: () {
                     setState(() {
-                      _currentIndex = SelectedScreen(
+                      currentIndex = SelectedScreen(
                           home: true, settings: false, listIndex: null);
                     });
                     Navigator.of(context).push(MaterialPageRoute(
@@ -166,46 +167,60 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                   },
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    //Helps build a listview builder inside a list view:
-                    shrinkWrap: true,
-                    itemCount: todoLists.length,
-                    itemBuilder: (context, ind) {
-                      return ListTile(
-                        selected: (_currentIndex.home == false &&
-                            _currentIndex.settings == false &&
-                            _currentIndex.listIndex == ind),
-                        title: Text(
-                          todoLists[ind],
-                          style: (isLargeFont)
-                              ? TextStyle(fontSize: 20)
-                              : TextStyle(),
-                        ),
-                        onTap: () {
-                          setState(() {
-                            _currentIndex = SelectedScreen(
-                                home: false, settings: false, listIndex: ind);
-                            var listNameValue = todoLists[ind];
-                            Navigator.pop(context);
+                  // child:
+                  // Scrollbar(
+                  //   isAlwaysShown: true,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(width: 0.2,),
+                      ),
+                    ),
+                    child: ListView.builder(
+                      padding: EdgeInsets.all(0),
+                      //Helps build a listview builder inside a list view:
+                      // shrinkWrap: true,
+                      itemCount: todoLists.length,
+                      itemBuilder: (context, ind) {
+                        return ListTile(
+                          selected: (currentIndex.home == false &&
+                              currentIndex.settings == false &&
+                              currentIndex.listIndex == ind),
+                          leading: Icon(Icons.event_note),
+                          title: Text(
+                            todoLists[ind],
+                            style: (isLargeFont)
+                                ? TextStyle(fontSize: 20)
+                                : TextStyle(),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              currentIndex = SelectedScreen(
+                                  home: false, settings: false, listIndex: ind);
+                              var listNameValue = todoLists[ind];
+                              Navigator.pop(context);
 
-                            // Navigator.pushNamed(context, listNameValue);
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (BuildContext context) => ToDoListPage(
-                                      listName: listNameValue,
-                                    )));
-                            print("Wanna view: $listNameValue");
+                              // Navigator.pushNamed(context, listNameValue);
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      ToDoListPage(
+                                        listName: listNameValue,
+                                      )));
+                              print("Wanna view: $listNameValue");
 
-                            // print("${_screen}");
-                          });
-                        },
-                      );
-                    },
+                              // print("${_screen}");
+                            });
+                          },
+                        );
+                      },
+                    ),
                   ),
+                  // ),
                 ),
                 Container(
                   padding: EdgeInsets.all(10),
                   child: ListTile(
-                    selected: (_currentIndex.settings == true),
+                    selected: (currentIndex.settings == true),
                     leading: Icon(Icons.settings),
                     title: Text(
                       'Settings',
@@ -215,9 +230,9 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                     onTap: () {
                       setState(
                         () {
-                          _currentIndex = SelectedScreen(
+                          currentIndex = SelectedScreen(
                               home: false, settings: true, listIndex: null);
-                          print(_currentIndex.settings);
+                          print(currentIndex.settings);
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (BuildContext context) =>
                                   SettingsScreen()));
@@ -238,5 +253,5 @@ var routeCreation = new BehaviorSubject<String>();
 
 final universalDrawer = MyAppDrawer();
 
-SelectedScreen _currentIndex =
+SelectedScreen currentIndex =
     SelectedScreen(home: true, settings: false, listIndex: null);

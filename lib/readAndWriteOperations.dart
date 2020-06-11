@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'custom_classes.dart';
 import 'dart:core';
 import 'dart:io';
+import 'package:share/share.dart';
 
 _getFilePath() async {
   final Directory directory = await getApplicationDocumentsDirectory();
@@ -42,6 +43,7 @@ write(List<TodoItem> toDo, String listName) async {
   print(todosString);
 
   await file.writeAsString(todosString);
+
 }
 
 readAllLists() async {
@@ -137,11 +139,27 @@ getAllListNames() async {
   map.forEach((key, value) {
     key.toString();
     x.add(key.toString());
-
   });
 
   x.remove('zyxwvu');
 
   print('Yo: $x');
   return x;
+}
+
+String convertToSharableString(List<TodoItem> list) {
+  List<String> items = [];
+
+  list.forEach((element) {
+    items.add(element.text);
+  });
+
+  return items.join('\n');
+}
+
+shareToDoList(String text, String subject) {
+  // final RenderBox box = context.findRenderObject();
+  Share.share(text, subject: subject
+      // sharePositionOrigin:
+      );
 }

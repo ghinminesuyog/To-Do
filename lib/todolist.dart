@@ -295,6 +295,12 @@ class _ToDoListPageState extends State<ToDoListPage> {
             icon: Icon(Icons.filter_list),
             tooltip: 'Filter by importance',
           ),
+          IconButton(
+            onPressed: () {
+              shareToDoList(convertToSharableString(toDo), 'My To Do List');
+            },
+            icon: Icon(Icons.share),
+          )
         ],
       ),
       floatingActionButton: addNewButton,
