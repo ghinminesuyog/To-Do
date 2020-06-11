@@ -36,6 +36,8 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   bool isDarkMode = false;
   bool isLargeFont = false;
+  String generatedListName = '';
+ 
 
   List<String> todoLists = [];
 
@@ -48,7 +50,9 @@ class MyAppState extends State<MyApp> {
     getFont();
 
     getAllListNames().then((value) {
-      todoLists = value;
+      setState(() {
+        todoLists = value;
+      });
     });
 
     readSettings().then((value) {
@@ -57,6 +61,8 @@ class MyAppState extends State<MyApp> {
         isLargeFont = value["largeFont"];
       });
     });
+
+    
   }
 
   getTheme() {
@@ -78,21 +84,13 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    
-    Map<String, Widget Function(BuildContext)> routes = {
-      'home': (context) => MyHomePage(),
-      'settings' : (context) => SettingsScreen(),
-    };
-
-    todoLists.forEach((element) {
-      routes[element] = (context) => ToDoListPage(
-            listName: element,
-          );
-    });
+   
+   
 
     return MaterialApp(
       initialRoute: 'home',
-      routes: routes,
+      // routes: routes,
+      
       title: 'To Do',
       debugShowCheckedModeBanner: false,
       theme: isDarkMode ? darkTheme : lightTheme,
@@ -101,8 +99,4 @@ class MyAppState extends State<MyApp> {
       ),
     );
   }
-}
-
-List<String> fakeLists() {
-  return [];
 }

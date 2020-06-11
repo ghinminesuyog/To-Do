@@ -10,6 +10,7 @@ import 'package:todo/todolist.dart';
 import 'dart:io';
 import 'home_todo_list.dart';
 import 'settings.dart';
+
 class TodoItem {
   bool important;
   String text;
@@ -20,26 +21,22 @@ class TodoItem {
       {'important': important, 'text': text, 'checked': checked};
 }
 
-class ToDoList{
+class ToDoList {
   String listName;
   List<TodoItem> todos;
 
-  ToDoList({this.listName,this.todos});
+  ToDoList({this.listName, this.todos});
 
-   Map<String, dynamic> toJson() =>
-      { listName: todos};
-
+  Map<String, dynamic> toJson() => {listName: todos};
 }
 
-class SelectedScreen{
+class SelectedScreen {
   bool home;
   bool settings;
   int listIndex;
 
-  SelectedScreen({this.home,this.settings,this.listIndex});
+  SelectedScreen({this.home, this.settings, this.listIndex});
 }
-
-
 
 class MyAppDrawer extends StatefulWidget {
   @override
@@ -50,7 +47,7 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
   bool isDarkMode = false;
   bool isLargeFont = false;
   List<String> todoLists = [];
-TextEditingController newListName = new TextEditingController();
+  TextEditingController newListName = new TextEditingController();
 
   @override
   void initState() {
@@ -69,8 +66,11 @@ TextEditingController newListName = new TextEditingController();
 
   addNewList(String listName) {
     print('Created $listName');
-   
-    Navigator.popAndPushNamed(context, listName);
+
+    // Navigator.of(context).push(MaterialPageRoute(
+    //               builder: (BuildContext context) => ToDoListPage(
+    //                     listName: newListName.text,
+    //                   )));
     // Navigator.pop
   }
 
@@ -99,6 +99,11 @@ TextEditingController newListName = new TextEditingController();
               onPressed: () {
                 print('Create');
                 Navigator.of(context).pop();
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => ToDoListPage(
+                          listName: newListName.text,
+                        )));
+
                 addNewList(newListName.text);
               },
             ),
@@ -155,10 +160,8 @@ TextEditingController newListName = new TextEditingController();
                         (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
                   ),
                   onTap: () {
-
-                    // Navigator.of(context).push(MaterialPageRoute(
-                    //     builder: (BuildContext context) => MyHomePage()));
-                       Navigator.popAndPushNamed(context, Navigator.defaultRouteName) ;
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => MyHomePage()));
                   },
                 ),
                 Expanded(
@@ -179,8 +182,11 @@ TextEditingController newListName = new TextEditingController();
                             var listNameValue = todoLists[ind];
                             Navigator.pop(context);
 
-                         
-                                        Navigator.pushNamed(context, listNameValue);
+                            // Navigator.pushNamed(context, listNameValue);
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (BuildContext context) => ToDoListPage(
+                                      listName: listNameValue,
+                                    )));
                             print("Wanna view: $listNameValue");
 
                             // print("${_screen}");
@@ -203,15 +209,10 @@ TextEditingController newListName = new TextEditingController();
                     onTap: () {
                       setState(
                         () {
-                          Navigator.pushNamed(context, 'settings');
-                          // Navigator.of(context).push(
-                          //   MaterialPageRoute(
-                          //       builder: (BuildContext context) =>
-                          //           SettingsScreen()),
-                          // );
-
-                          // _currentIndex = SelectedScreen(
-                          // home: false, settings: true, listIndex: null);
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  SettingsScreen()));
+                          // Navigator.pushNamed(context, 'settings');
                         },
                       );
                     },
@@ -223,3 +224,5 @@ TextEditingController newListName = new TextEditingController();
     );
   }
 }
+
+var routeCreation = new BehaviorSubject<String>();
