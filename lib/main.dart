@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -40,7 +39,6 @@ class MyAppState extends State<MyApp> {
 
   List<String> todoLists = [];
 
-
   @override
   void initState() {
     super.initState();
@@ -52,7 +50,6 @@ class MyAppState extends State<MyApp> {
     getAllListNames().then((value) {
       todoLists = value;
     });
-
 
     readSettings().then((value) {
       setState(() {
@@ -81,17 +78,28 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    
+    Map<String, Widget Function(BuildContext)> routes = {
+      'home': (context) => MyHomePage(),
+      'settings' : (context) => SettingsScreen(),
+    };
+
+    todoLists.forEach((element) {
+      routes[element] = (context) => ToDoListPage(
+            listName: element,
+          );
+    });
+
     return MaterialApp(
-      // routes: ,
+      initialRoute: 'home',
+      routes: routes,
       title: 'To Do',
       debugShowCheckedModeBanner: false,
       theme: isDarkMode ? darkTheme : lightTheme,
       home: Scaffold(
-        
         body: MyHomePage(),
       ),
     );
-    // );
   }
 }
 

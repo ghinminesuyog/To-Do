@@ -69,11 +69,9 @@ TextEditingController newListName = new TextEditingController();
 
   addNewList(String listName) {
     print('Created $listName');
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (BuildContext context) => ToDoListPage(
-        listName: listName,
-      ),
-    ));
+   
+    Navigator.popAndPushNamed(context, listName);
+    // Navigator.pop
   }
 
   Future<void> _newListDialog(BuildContext context) async {
@@ -158,8 +156,9 @@ TextEditingController newListName = new TextEditingController();
                   ),
                   onTap: () {
 
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) => MyHomePage()));
+                    // Navigator.of(context).push(MaterialPageRoute(
+                    //     builder: (BuildContext context) => MyHomePage()));
+                       Navigator.popAndPushNamed(context, Navigator.defaultRouteName) ;
                   },
                 ),
                 Expanded(
@@ -180,11 +179,8 @@ TextEditingController newListName = new TextEditingController();
                             var listNameValue = todoLists[ind];
                             Navigator.pop(context);
 
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        ToDoListPage(listName: listNameValue)));
+                         
+                                        Navigator.pushNamed(context, listNameValue);
                             print("Wanna view: $listNameValue");
 
                             // print("${_screen}");
@@ -207,11 +203,12 @@ TextEditingController newListName = new TextEditingController();
                     onTap: () {
                       setState(
                         () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    SettingsScreen()),
-                          );
+                          Navigator.pushNamed(context, 'settings');
+                          // Navigator.of(context).push(
+                          //   MaterialPageRoute(
+                          //       builder: (BuildContext context) =>
+                          //           SettingsScreen()),
+                          // );
 
                           // _currentIndex = SelectedScreen(
                           // home: false, settings: true, listIndex: null);
