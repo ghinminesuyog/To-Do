@@ -269,7 +269,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
     );
 
     return Scaffold(
-      drawer: MyAppDrawer(),
+      drawer: universalDrawer,
       appBar: AppBar(
         title: showSearchBar
             ? TextField(

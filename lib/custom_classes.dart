@@ -66,12 +66,13 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
 
   addNewList(String listName) {
     print('Created $listName');
-
-    // Navigator.of(context).push(MaterialPageRoute(
-    //               builder: (BuildContext context) => ToDoListPage(
-    //                     listName: newListName.text,
-    //                   )));
-    // Navigator.pop
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) => ToDoListPage(
+          listName: listName,
+        ),
+      ),
+    );
   }
 
   Future<void> _newListDialog(BuildContext context) async {
@@ -99,10 +100,6 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
               onPressed: () {
                 print('Create');
                 Navigator.of(context).pop();
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => ToDoListPage(
-                          listName: newListName.text,
-                        )));
 
                 addNewList(newListName.text);
               },
@@ -152,7 +149,7 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                   // decoration: BoxDecoration(color: Colors.blue),
                 ),
                 ListTile(
-                  // selected: (_currentIndex.home == true),
+                  selected: (_currentIndex.home == true),
                   leading: Icon(Icons.event_note),
                   title: Text(
                     'To-Do',
@@ -160,6 +157,10 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                         (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
                   ),
                   onTap: () {
+                    setState(() {
+                      _currentIndex = SelectedScreen(
+                          home: true, settings: false, listIndex: null);
+                    });
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (BuildContext context) => MyHomePage()));
                   },
@@ -171,6 +172,9 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                     itemCount: todoLists.length,
                     itemBuilder: (context, ind) {
                       return ListTile(
+                        selected: (_currentIndex.home == false &&
+                            _currentIndex.settings == false &&
+                            _currentIndex.listIndex == ind),
                         title: Text(
                           todoLists[ind],
                           style: (isLargeFont)
@@ -179,6 +183,8 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                         ),
                         onTap: () {
                           setState(() {
+                            _currentIndex = SelectedScreen(
+                                home: false, settings: false, listIndex: ind);
                             var listNameValue = todoLists[ind];
                             Navigator.pop(context);
 
@@ -199,7 +205,7 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                 Container(
                   padding: EdgeInsets.all(10),
                   child: ListTile(
-                    // selected: (_currentIndex.settings == true),
+                    selected: (_currentIndex.settings == true),
                     leading: Icon(Icons.settings),
                     title: Text(
                       'Settings',
@@ -209,6 +215,9 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                     onTap: () {
                       setState(
                         () {
+                          _currentIndex = SelectedScreen(
+                              home: false, settings: true, listIndex: null);
+                          print(_currentIndex.settings);
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (BuildContext context) =>
                                   SettingsScreen()));
@@ -226,3 +235,8 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
 }
 
 var routeCreation = new BehaviorSubject<String>();
+
+final universalDrawer = MyAppDrawer();
+
+SelectedScreen _currentIndex =
+    SelectedScreen(home: true, settings: false, listIndex: null);
