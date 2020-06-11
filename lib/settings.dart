@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:rxdart/rxdart.dart';
+import 'package:todo/main.dart';
 import 'readAndWriteOperations.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -99,56 +100,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        // SizedBox(
-        //   height: 100,
-        // ),
-        ListTile(
-          title: Text(
-            'Dark mode: ',
-            style: (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
-          ),
-          trailing: Checkbox(
-            value: isDarkMode,
-            onChanged: (value) {
-              setState(() {
-                isDarkMode = value;
-                theme.add(value);
-              });
-              writeSettings(isDarkMode, isLargeFont);
-            },
-          ),
+    return Scaffold(
+      drawer: MyAppBar(),
+      appBar: AppBar(
+        title: Text(
+          'Settings',
+          style: isLargeFont ? TextStyle(fontSize: 28) : TextStyle(),
         ),
-        ListTile(
-          title: Text(
-            'Large font: ',
-            style: (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
-          ),
-          trailing: Checkbox(
-            value: isLargeFont,
-            onChanged: (value) {
-              setState(
-                () {
-                  isLargeFont = value;
+      ),
+      body: Center(
+        child: Column(
+          children: <Widget>[
+            // SizedBox(
+            //   height: 100,
+            // ),
+            ListTile(
+              title: Text(
+                'Dark mode: ',
+                style: (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
+              ),
+              trailing: Checkbox(
+                value: isDarkMode,
+                onChanged: (value) {
+                  setState(() {
+                    isDarkMode = value;
+                    theme.add(value);
+                  });
                   writeSettings(isDarkMode, isLargeFont);
-                  font.add(value);
                 },
-              );
-            },
-          ),
+              ),
+            ),
+            ListTile(
+              title: Text(
+                'Large font: ',
+                style: (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
+              ),
+              trailing: Checkbox(
+                value: isLargeFont,
+                onChanged: (value) {
+                  setState(
+                    () {
+                      isLargeFont = value;
+                      writeSettings(isDarkMode, isLargeFont);
+                      font.add(value);
+                    },
+                  );
+                },
+              ),
+            ),
+            RaisedButton(
+              color: Colors.red[600],
+              child: Text(
+                'Clear storage',
+                style: (isLargeFont)
+                    ? TextStyle(fontSize: 20, color: Colors.white)
+                    : TextStyle(color: Colors.white),
+              ),
+              onPressed: _deleteDialog,
+            ),
+          ],
         ),
-        RaisedButton(
-          color: Colors.red[600],
-          child: Text(
-            'Clear storage',
-            style: (isLargeFont)
-                ? TextStyle(fontSize: 20, color: Colors.white)
-                : TextStyle(color: Colors.white),
-          ),
-          onPressed: _deleteDialog,
-        ),
-      ],
+      ),
     );
   }
 }

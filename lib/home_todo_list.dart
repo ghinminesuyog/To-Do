@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:todo/main.dart';
 import 'dart:core';
 import 'settings.dart';
 import 'custom_classes.dart';
@@ -23,6 +24,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool isDarkMode = false;
   bool isLargeFont = false;
+  bool showSearchBar = false;
 
   initState() {
     super.initState();
@@ -31,14 +33,12 @@ class _MyHomePageState extends State<MyHomePage> {
         toDo = value;
       }),
     );
-    readSettings().then(
-      (value){
-        setState(() {
-          isDarkMode = value["dark"];
-          isLargeFont = value["largeFont"];
-        });
-      }
-    );
+    readSettings().then((value) {
+      setState(() {
+        isDarkMode = value["dark"];
+        isLargeFont = value["largeFont"];
+      });
+    });
     // getFont();
     // getTheme();
 
@@ -55,20 +55,18 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  
-
   delete(int index) {
     setState(() {
       toDo.removeAt(index);
     });
-    write(toDo,'zyxwvu');
+    write(toDo, 'zyxwvu');
   }
 
   undoDelete(int index, TodoItem item) {
     setState(() {
       toDo.insert(index, item);
     });
-    write(toDo,'zyxwvu');
+    write(toDo, 'zyxwvu');
   }
 
   getFont() {
@@ -135,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onTap: () {
                       setState(() {
                         toDo[index].important = !toDo[index].important;
-                        write(toDo,'zyxwvu');
+                        write(toDo, 'zyxwvu');
                       });
                     },
                     child: Icon(
@@ -158,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
-                      write(toDo,'zyxwvu');
+                      write(toDo, 'zyxwvu');
                     },
                   ),
                   trailing: Checkbox(
@@ -166,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (bool value) {
                       setState(() {
                         toDo[index].checked = value;
-                        write(toDo,'zyxwvu');
+                        write(toDo, 'zyxwvu');
                       });
                     },
                   ),
@@ -209,7 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onTap: () {
                   setState(() {
                     toDo[index].important = !toDo[index].important;
-                    write(toDo,'zyxwvu');
+                    write(toDo, 'zyxwvu');
                   });
                 },
                 child: Icon(
@@ -227,7 +225,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: (isLargeFont) ? TextStyle(fontSize: 25) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
-                  write(toDo,'zyxwvu');
+                  write(toDo, 'zyxwvu');
                 },
               ),
               trailing: Checkbox(
@@ -235,7 +233,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onChanged: (bool value) {
                   setState(() {
                     toDo[index].checked = value;
-                    write(toDo,'zyxwvu');
+                    write(toDo, 'zyxwvu');
                   });
                 },
               ),
@@ -268,12 +266,27 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     return Scaffold(
+      drawer: MyAppBar(),
       appBar: AppBar(
-        title: TextField(
-          controller: searchTextController,
-          onChanged: (value) {},
-        ),
+        title: showSearchBar
+            ? TextField(
+                controller: searchTextController,
+                onChanged: (value) {},
+              )
+            : Text(
+                'To Do',
+                style: isLargeFont ? TextStyle(fontSize: 28) : TextStyle(),
+              ),
         actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              setState(() {
+                showSearchBar = !showSearchBar;
+              });
+            },
+            icon: Icon(Icons.search),
+            tooltip: 'Search',
+          ),
           IconButton(
             onPressed: filterByImportance,
             icon: Icon(Icons.filter_list),
@@ -283,11 +296,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: addNewButton,
       body: Center(
-        child: ((searchText == '' || searchText == null)
-            ? toDoList
-            : searchList()),
+        child: (showSearchBar) ? searchList() : toDoList,
       ),
     );
   }
 }
-

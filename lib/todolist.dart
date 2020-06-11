@@ -1,21 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:todo/main.dart';
 import 'dart:core';
 import 'settings.dart';
 import 'custom_classes.dart';
 import 'readAndWriteOperations.dart';
 
 class ToDoListPage extends StatefulWidget {
+  final String listName;
 
-  @required final String listName;
-
-  ToDoListPage({Key key, this.listName}) : super(key:key);
+  ToDoListPage({this.listName});
 
   @override
-  _ToDoListPageState createState() => _ToDoListPageState();
+  _ToDoListPageState createState() => _ToDoListPageState(listName: listName);
 }
 
 class _ToDoListPageState extends State<ToDoListPage> {
+  final String listName;
+  _ToDoListPageState({this.listName});
+
   List<TodoItem> toDo = [];
 
   bool isFiltered = false;
@@ -27,22 +30,19 @@ class _ToDoListPageState extends State<ToDoListPage> {
   initState() {
     super.initState();
 
-readSettings().then(
-      (value){
-        setState(() {
-          isDarkMode = value["dark"];
-          isLargeFont = value["largeFont"];
-        });
-      }
-    );
+    readSettings().then((value) {
+      setState(() {
+        isDarkMode = value["dark"];
+        isLargeFont = value["largeFont"];
+      });
+    });
 
-read(widget.listName).then(
+    read(listName).then(
       (value) => setState(() {
         toDo = value;
       }),
     );
 
-    
     searchTextController.addListener(() {
       setState(() {
         searchText = searchTextController.text;
@@ -56,20 +56,16 @@ read(widget.listName).then(
     super.dispose();
   }
 
-
-
-  
-
+  bool showSearchBar = false;
   bool isLargeFont = false;
-
 
   delete(int index) {
     setState(() {
       toDo.removeAt(index);
     });
 
-    Future.delayed(Duration(seconds: 15),(){
-      write(toDo,widget.listName);
+    Future.delayed(Duration(seconds: 15), () {
+      write(toDo, listName);
     });
   }
 
@@ -79,7 +75,7 @@ read(widget.listName).then(
     });
   }
 
-   getFont() {
+  getFont() {
     font.stream.listen((data) {
       setState(() {
         isLargeFont = data;
@@ -87,9 +83,7 @@ read(widget.listName).then(
     });
   }
 
-   getTheme() {
-
-
+  getTheme() {
     //Listen to the stream:
     theme.stream.listen((data) {
       setState(() {
@@ -98,6 +92,7 @@ read(widget.listName).then(
     });
     // return isDarkMode;
   }
+
   filterByImportance() {
     if (!isFiltered) {
       setState(
@@ -112,7 +107,7 @@ read(widget.listName).then(
         },
       );
     } else {
-    read(widget.listName);
+      read(listName);
       isFiltered = false;
     }
   }
@@ -141,7 +136,7 @@ read(widget.listName).then(
                     onTap: () {
                       setState(() {
                         toDo[index].important = !toDo[index].important;
-                        write(toDo,widget.listName);
+                        write(toDo, listName);
                       });
                     },
                     child: Icon(
@@ -160,10 +155,11 @@ read(widget.listName).then(
                     // keyboardType: TextInputType.multiline,
                     minLines: 1,
                     maxLines: 5,
-                    style: (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
+                    style:
+                        (isLargeFont) ? TextStyle(fontSize: 26) : TextStyle(),
                     onChanged: (String val) {
                       toDo[index].text = val;
-                      write(toDo,widget.listName);
+                      write(toDo, listName);
                     },
                   ),
                   trailing: Checkbox(
@@ -171,7 +167,7 @@ read(widget.listName).then(
                     onChanged: (bool value) {
                       setState(() {
                         toDo[index].checked = value;
-                        write(toDo,widget.listName);
+                        write(toDo, listName);
                       });
                     },
                   ),
@@ -214,7 +210,7 @@ read(widget.listName).then(
                 onTap: () {
                   setState(() {
                     toDo[index].important = !toDo[index].important;
-                    write(toDo,widget.listName);
+                    write(toDo, listName);
                   });
                 },
                 child: Icon(
@@ -232,7 +228,7 @@ read(widget.listName).then(
                 style: (isLargeFont) ? TextStyle(fontSize: 25) : TextStyle(),
                 onChanged: (String val) {
                   toDo[index].text = val;
-                  write(toDo,widget.listName);
+                  write(toDo, listName);
                 },
               ),
               trailing: Checkbox(
@@ -240,7 +236,7 @@ read(widget.listName).then(
                 onChanged: (bool value) {
                   setState(() {
                     toDo[index].checked = value;
-                    write(toDo,widget.listName);
+                    write(toDo, listName);
                   });
                 },
               ),
@@ -273,12 +269,27 @@ read(widget.listName).then(
     );
 
     return Scaffold(
+      drawer: MyAppBar(),
       appBar: AppBar(
-        title: TextField(
-          controller: searchTextController,
-          onChanged: (value) {},
-        ),
+        title: showSearchBar
+            ? TextField(
+                controller: searchTextController,
+                onChanged: (value) {},
+              )
+            : Text(
+                listName,
+                style: isLargeFont ? TextStyle(fontSize: 28) : TextStyle(),
+              ),
         actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              setState(() {
+                showSearchBar = !showSearchBar;
+              });
+            },
+            icon: Icon(Icons.search),
+            tooltip: 'Search',
+          ),
           IconButton(
             onPressed: filterByImportance,
             icon: Icon(Icons.filter_list),
@@ -288,11 +299,8 @@ read(widget.listName).then(
       ),
       floatingActionButton: addNewButton,
       body: Center(
-        child: ((searchText == '' || searchText == null)
-            ? toDoList
-            : searchList()),
+        child: (showSearchBar) ? searchList() : toDoList,
       ),
     );
   }
 }
-

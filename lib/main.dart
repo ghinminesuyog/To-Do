@@ -41,39 +41,6 @@ class MyAppState extends State<MyApp> {
   List<String> todoLists = [];
 
 
-
-  changeScreen(index) {
-    setState(() {
-
-    Widget newWidget = new ToDoListPage(listName: todoLists[index]);
-
-      _currentIndex =
-          new SelectedScreen(home: false, settings: false, listIndex: index);
-
-      _screen =  newWidget;
-
-      print("Wanna view: ${todoLists[index]}");
-
-      // print("${_screen}");
-    });
-  }
-
-
-  // List<Widget> _screens = [
-  //   MyHomePage(),
-  //   SettingsScreen(),
-  // ];
-
-  Widget _screen;
-  SelectedScreen _currentIndex =
-      SelectedScreen(home: true, settings: false, listIndex: null);
-
-  // changeIndex(int ind) {
-  //   setState(() {
-  //     _currentIndex = ind;
-  //   });
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -86,7 +53,6 @@ class MyAppState extends State<MyApp> {
       todoLists = value;
     });
 
-    _screen = MyHomePage();
 
     readSettings().then((value) {
       setState(() {
@@ -111,6 +77,60 @@ class MyAppState extends State<MyApp> {
         isLargeFont = data;
       });
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      // routes: ,
+      title: 'To Do',
+      debugShowCheckedModeBanner: false,
+      theme: isDarkMode ? darkTheme : lightTheme,
+      home: Scaffold(
+        
+        body: MyHomePage(),
+      ),
+    );
+    // );
+  }
+}
+
+List<String> fakeLists() {
+  return [];
+}
+
+class MyAppBar extends StatefulWidget {
+  @override
+  _MyAppBarState createState() => _MyAppBarState();
+}
+
+class _MyAppBarState extends State<MyAppBar> {
+  bool isDarkMode = false;
+  bool isLargeFont = false;
+  List<String> todoLists = [];
+
+  @override
+  void initState() {
+    super.initState();
+    readSettings().then((value) {
+      setState(() {
+        isDarkMode = value["dark"];
+        isLargeFont = value["largeFont"];
+      });
+    });
+
+    getAllListNames().then((value) {
+      todoLists = value;
+    });
+  }
+
+  addNewList(String listName) {
+    print('Created $listName');
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (BuildContext context) => ToDoListPage(
+        listName: listName,
+      ),
+    ));
   }
 
   Future<void> _newListDialog(BuildContext context) async {
@@ -154,133 +174,112 @@ class MyAppState extends State<MyApp> {
     );
   }
 
-  addNewList(String listName) {
-    print('Created $listName');
-    setState(() {
-      _screen = ToDoListPage(
-        listName: listName,
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'To Do',
-      debugShowCheckedModeBanner: false,
-      theme: isDarkMode ? darkTheme : lightTheme,
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'To Do',
-            style: (isLargeFont) ? TextStyle(fontSize: 28) : TextStyle(),
-          ),
-        ),
-        drawer: Drawer(
-          child: StreamBuilder<Object>(
-              stream: null,
-              builder: (context, snapshot) {
-                return Column(
-                  children: <Widget>[
-                    DrawerHeader(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          Text(
-                            'To Do',
-                            style: (isLargeFont)
-                                ? TextStyle(
-                                    fontSize: 30,
-                                  )
-                                : TextStyle(),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.playlist_add),
-                            onPressed: () {
-                              _newListDialog(context);
-                            },
-                          ),
-                        ],
-                      ),
-                      // decoration: BoxDecoration(color: Colors.blue),
-                    ),
-                    ListTile(
-                      selected: (_currentIndex.home == true),
-                      leading: Icon(Icons.event_note),
-                      title: Text(
-                        'To-Do',
+    return Drawer(
+      child: StreamBuilder<Object>(
+          stream: null,
+          builder: (context, snapshot) {
+            return Column(
+              children: <Widget>[
+                DrawerHeader(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Text(
+                        'To Do',
                         style: (isLargeFont)
-                            ? TextStyle(fontSize: 20)
+                            ? TextStyle(
+                                fontSize: 30,
+                              )
                             : TextStyle(),
                       ),
-                      onTap: () {
-                        // changeIndex(0);
-                        setState(() {
-                          _screen = new MyHomePage();
-                          _currentIndex = SelectedScreen(
-                              home: true, settings: false, listIndex: null);
-                        });
-                      },
-                    ),
-                    //TODO: Set state to change _screen
-                    Expanded(
-                      child: ListView.builder(
-                        //Helps build a listview builder inside a list view:
-                        shrinkWrap: true,
-                        itemCount: todoLists.length,
-                        itemBuilder: (context, ind) {
-                          return ListTile(
-                            // leading: Icon(Icons.check_circle),
-                            selected: _currentIndex.listIndex == ind,
-                            title: Text(
-                              todoLists[ind],
-                              style: (isLargeFont)
-                                  ? TextStyle(fontSize: 20)
-                                  : TextStyle(),
-                            ),
-                            onTap: 
-                              (){
-                                changeScreen(ind);
-                              },
-                            
-                          );
+                      IconButton(
+                        icon: Icon(Icons.playlist_add),
+                        onPressed: () {
+                          _newListDialog(context);
                         },
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      child: ListTile(
-                        selected: (_currentIndex.settings == true),
-                        leading: Icon(Icons.settings),
+                    ],
+                  ),
+                  // decoration: BoxDecoration(color: Colors.blue),
+                ),
+                ListTile(
+                  // selected: (_currentIndex.home == true),
+                  leading: Icon(Icons.event_note),
+                  title: Text(
+                    'To-Do',
+                    style:
+                        (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
+                  ),
+                  onTap: () {
+
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => MyHomePage()));
+                  },
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    //Helps build a listview builder inside a list view:
+                    shrinkWrap: true,
+                    itemCount: todoLists.length,
+                    itemBuilder: (context, ind) {
+                      return ListTile(
                         title: Text(
-                          'Settings',
+                          todoLists[ind],
                           style: (isLargeFont)
                               ? TextStyle(fontSize: 20)
                               : TextStyle(),
                         ),
                         onTap: () {
-                          setState(
-                            () {
-                              _screen = SettingsScreen();
-                              _currentIndex = SelectedScreen(
-                                  home: false, settings: true, listIndex: null);
-                            },
-                          );
-                        },
-                      ),
-                    )
-                  ],
-                );
-              }),
-        ),
-        body: _screen,
-      ),
-    );
-    // );
-  }
-}
+                          setState(() {
+                            var listNameValue = todoLists[ind];
+                            Navigator.pop(context);
 
-List<String> fakeLists() {
-  return [];
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ToDoListPage(listName: listNameValue)));
+                            print("Wanna view: $listNameValue");
+
+                            // print("${_screen}");
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(10),
+                  child: ListTile(
+                    // selected: (_currentIndex.settings == true),
+                    leading: Icon(Icons.settings),
+                    title: Text(
+                      'Settings',
+                      style:
+                          (isLargeFont) ? TextStyle(fontSize: 20) : TextStyle(),
+                    ),
+                    onTap: () {
+                      setState(
+                        () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    SettingsScreen()),
+                          );
+
+                          // _currentIndex = SelectedScreen(
+                          // home: false, settings: true, listIndex: null);
+                        },
+                      );
+                    },
+                  ),
+                )
+              ],
+            );
+          }),
+    );
+  }
 }
