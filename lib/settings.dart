@@ -102,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MyAppBar(),
+      drawer: MyAppDrawer(),
       appBar: AppBar(
         title: Text(
           'Settings',

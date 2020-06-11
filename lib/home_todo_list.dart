@@ -266,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     return Scaffold(
-      drawer: MyAppBar(),
+      drawer: MyAppDrawer(),
       appBar: AppBar(
         title: showSearchBar
             ? TextField(

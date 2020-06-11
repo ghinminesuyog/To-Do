@@ -41,12 +41,12 @@ class SelectedScreen{
 
 
 
-class MyAppBar extends StatefulWidget {
+class MyAppDrawer extends StatefulWidget {
   @override
-  _MyAppBarState createState() => _MyAppBarState();
+  _MyAppDrawerState createState() => _MyAppDrawerState();
 }
 
-class _MyAppBarState extends State<MyAppBar> {
+class _MyAppDrawerState extends State<MyAppDrawer> {
   bool isDarkMode = false;
   bool isLargeFont = false;
   List<String> todoLists = [];
