@@ -8,60 +8,67 @@ import 'package:share/share.dart';
 
 _getFilePath() async {
   final Directory directory = await getApplicationDocumentsDirectory();
-  return File('${directory.path}/my_file.txt');
+
+  var file = File('${directory.path}/my_file.txt');
+
+  print('Getting file path');
+
+  return file;
 }
 
 write(List<TodoItem> toDo, String listName) async {
+  print('Writing: $toDo and $listName');
+
   final file = await _getFilePath();
 
   List<TodoItem> todos = toDo;
 
-  // ToDoList defaultList = ToDoList(listName:'zyxwvu',todos: todos);
-  // ToDoList defaultList3 = ToDoList(listName:'zyxwvu',todos: todos);
+  // print('You wanna edit: $listName');
 
-  print('You wanna edit: $listName');
+  Map<String, dynamic> original = {};
+  original = await readAllLists();
+  if (original != null) {
+    if (original.containsKey(listName)) {
+      original[listName] = todos;
 
-  Map<String, dynamic> original = await readAllLists();
-  // Map<String, dynamic> original = Map<String, dynamic>.from(originalMap);
-
-  // print(original);
-
-  // print(original.keys);
-
-  // print('Exists: $exists');
-
-  if (original.containsKey(listName)) {
-    original[listName] = todos;
-
-    print('Changed to: $original');
-    var b = original[listName];
-    print('And list is: $b');
+      print('Changed to: $original');
+      var b = original[listName];
+      print('And list is: $b');
+    } else {
+      original[listName] = todos;
+      print('Trying this');
+    }
   } else {
-    original[listName] = todos;
+    // original.    print('Biggest else');
+    print('Original empty');
+    original = {listName: todos};
+    // original[listName] = todos;
   }
+
   String todosString = json.encode(original);
   print(todosString);
 
   await file.writeAsString(todosString);
-
 }
 
 readAllLists() async {
+  print('Reading all lists');
   String text;
+
   try {
     final file = await _getFilePath();
 
     text = await file.readAsString();
 
-    // print('Text $text');
-
     var tasks = jsonDecode(text);
 
-    // print('Tasks: $tasks');
+    print('Tasks: $tasks');
 
-    return Map<String, dynamic>.from(tasks);
+    return tasks;
   } catch (e) {
-    print("Couldn't read file because $e");
+    print("Couldn't read file in read all lists because $e");
+    return null;
+    // await write([], 'zyxwvu');
   }
   // return toDo;
 }
@@ -76,10 +83,10 @@ Future<List<TodoItem>> read(String listName) async {
     // var tasks = jsonDecode(text);
 
     Map<String, dynamic> lists = jsonDecode(text);
-    print(lists.keys);
+    // print('No : ${lists.keys}');
 
     List<dynamic> tasks = lists[listName];
-
+ 
     print(tasks);
 
     for (var task in tasks) {
@@ -97,10 +104,10 @@ Future<List<TodoItem>> read(String listName) async {
   return toDo;
 }
 
-getToDoListFilePath() async {
-  final Directory directory = await getApplicationDocumentsDirectory();
-  return File('${directory.path}/my_file.txt');
-}
+// getToDoListFilePath() async {
+//   final Directory directory = await getApplicationDocumentsDirectory();
+//   return File('${directory.path}/my_file.txt');
+// }
 
 //Settings:
 
@@ -134,17 +141,25 @@ writeSettings(isDarkMode, isLargeFont) async {
 
 getAllListNames() async {
   Map<String, dynamic> map = await readAllLists();
-  print(map.keys);
-  List<String> x = [];
-  map.forEach((key, value) {
-    key.toString();
-    x.add(key.toString());
-  });
+  print('Getting all list name');
 
-  x.remove('zyxwvu');
+  if (map != null) {
+    List<String> x = [];
 
-  print('Yo: $x');
-  return x;
+    print('Map not null');
+    map.forEach((key, value) {
+      key.toString();
+      x.add(key.toString());
+    });
+
+    x.remove('zyxwvu');
+
+    print('Yo: $x');
+    return x;
+  } else {
+    print('No list');
+    return null;
+  }
 }
 
 String convertToSharableString(List<TodoItem> list) {
@@ -162,4 +177,13 @@ shareToDoList(String text, String subject) {
   Share.share(text, subject: subject
       // sharePositionOrigin:
       );
+}
+
+clearLocalStorage() async {
+  try {
+    final File file = await _getFilePath();
+    file.delete();
+  } catch (e) {
+    print('Error deleting local data storage');
+  }
 }

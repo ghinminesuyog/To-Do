@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:todo/main.dart';
+// import 'package:todo/main.dart';
 import 'dart:core';
 import 'settings.dart';
 import 'custom_classes.dart';

@@ -1,10 +1,10 @@
-import 'dart:async';
-import 'dart:convert';
+// import 'dart:async';
+// import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:todo/main.dart';
+// import 'dart:io';
+// import 'package:path_provider/path_provider.dart';
+// import 'package:todo/main.dart';
 import 'dart:core';
 import 'settings.dart';
 import 'custom_classes.dart';
@@ -30,19 +30,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   initState() {
     super.initState();
-    read('zyxwvu').then(
-      (value) => setState(() {
-        toDo = value;
-      }),
-    );
-    readSettings().then((value) {
-      setState(() {
-        isDarkMode = value["dark"];
-        isLargeFont = value["largeFont"];
-      });
+    read('zyxwvu').then((value) {
+      if (value != null) {
+        setState(() {
+          toDo = value;
+        });
+      }
     });
-    // getFont();
-    // getTheme();
+    readSettings().then((value) {
+      if (value != null) {
+        setState(() {
+          isDarkMode = value["dark"];
+          isLargeFont = value["largeFont"];
+        });
+      }
+    });
 
     searchTextController.addListener(() {
       setState(() {

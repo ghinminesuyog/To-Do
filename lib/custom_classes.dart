@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
-import 'dart:convert';
+// import 'dart:convert';
 
-import 'package:todo/custom_classes.dart';
+// import 'package:todo/custom_classes.dart';
 import 'package:todo/todolist.dart';
 import 'package:flutter/material.dart';
 import 'readAndWriteOperations.dart';
 
-import 'package:todo/todolist.dart';
-import 'dart:io';
+// import 'package:todo/todolist.dart';
+// import 'dart:io';
 import 'home_todo_list.dart';
 import 'settings.dart';
 
@@ -54,14 +54,21 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
   void initState() {
     super.initState();
     readSettings().then((value) {
-      setState(() {
-        isDarkMode = value["dark"];
-        isLargeFont = value["largeFont"];
-      });
+      if (value != null) {
+        setState(() {
+          isDarkMode = value["dark"];
+          isLargeFont = value["largeFont"];
+        });
+      }
     });
 
     getAllListNames().then((value) {
-      todoLists = value;
+      if (value != null) {
+        print('We have $value');
+        setState(() {
+          todoLists = value;
+        });
+      }
     });
   }
 
@@ -173,7 +180,9 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                   child: Container(
                     decoration: BoxDecoration(
                       border: Border(
-                        top: BorderSide(width: 0.2,),
+                        top: BorderSide(
+                          width: 0.2,
+                        ),
                       ),
                     ),
                     child: ListView.builder(

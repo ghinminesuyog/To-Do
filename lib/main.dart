@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:convert';
+// import 'dart:convert';
 
-import 'package:todo/custom_classes.dart';
-import 'package:todo/todolist.dart';
+// import 'package:todo/custom_classes.dart';
+// import 'package:todo/todolist.dart';
 import 'dart:io';
 import 'home_todo_list.dart';
 import 'settings.dart';
@@ -37,7 +37,6 @@ class MyAppState extends State<MyApp> {
   bool isDarkMode = false;
   bool isLargeFont = false;
   String generatedListName = '';
- 
 
   List<String> todoLists = [];
 
@@ -45,7 +44,7 @@ class MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    readSettings();
+    // readSettings();
     getTheme();
     getFont();
 
@@ -56,13 +55,13 @@ class MyAppState extends State<MyApp> {
     });
 
     readSettings().then((value) {
-      setState(() {
-        isDarkMode = value["dark"];
-        isLargeFont = value["largeFont"];
-      });
+      if (value != null) {
+        setState(() {
+          isDarkMode = value["dark"];
+          isLargeFont = value["largeFont"];
+        });
+      }
     });
-
-    
   }
 
   getTheme() {
@@ -84,13 +83,10 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-   
-   
-
     return MaterialApp(
       initialRoute: 'home',
       // routes: routes,
-      
+
       title: 'To Do',
       debugShowCheckedModeBanner: false,
       theme: isDarkMode ? darkTheme : lightTheme,

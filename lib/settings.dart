@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:io';
+// import 'dart:io';
 import 'package:rxdart/rxdart.dart';
-import 'package:todo/main.dart';
+// import 'package:todo/main.dart';
 import 'readAndWriteOperations.dart';
 import 'custom_classes.dart';
 
@@ -24,29 +24,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   initState() {
     super.initState();
-    readSettings().then(
-      (value) => setState(
-        () {
+    readSettings().then((value) {
+      if (value != null) {
+        setState(() {
           isDarkMode = value['dark'];
           isLargeFont = value['largeFont'];
-        },
-      ),
-    );
+        });
+      }
+    });
     getFontSize();
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  _clearLocalStorage() async {
-    try {
-      final File file = await getToDoListFilePath();
-      file.delete();
-    } catch (e) {
-      print('Error deleting local data storage');
-    }
   }
 
   getFontSize() {
@@ -84,7 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               textColor: Colors.white,
               onPressed: () {
                 Navigator.of(context).pop();
-                _clearLocalStorage();
+                clearLocalStorage();
               },
             ),
             FlatButton(
