@@ -68,6 +68,7 @@ readAllLists() async {
   } catch (e) {
     print("Couldn't read file in read all lists because $e");
     return null;
+
     // await write([], 'zyxwvu');
   }
   // return toDo;
@@ -104,7 +105,7 @@ Future<List<TodoItem>> read(String listName) async {
   return toDo;
 }
 
-writeEverything(Map<String,dynamic>list) async {
+writeEverything(Map<String, dynamic> list) async {
   try {
     final File file = await _getFilePath();
 
@@ -185,9 +186,14 @@ String convertToSharableString(List<TodoItem> list) {
 
 shareToDoList(String text, String subject) {
   // final RenderBox box = context.findRenderObject();
-  Share.share(text, subject: subject
-      // sharePositionOrigin:
-      );
+  if (text.isNotEmpty) {
+    Share.share(text, subject: subject
+        // sharePositionOrigin:
+        );
+  }
+  else{
+    print('Cannot share empty text');
+  }
 }
 
 clearLocalStorage() async {
