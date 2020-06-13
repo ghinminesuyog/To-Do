@@ -20,6 +20,45 @@ class _ToDoListPageState extends State<ToDoListPage> {
   final String listName;
   _ToDoListPageState({this.listName});
 
+  Future<void> _deleteDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Warning'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('This will permanently delete list.'),
+                Text('Are you sure you want to delete?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Delete'),
+              color: Colors.red,
+              textColor: Colors.white,
+              onPressed: () {
+                deleteList(listName);
+                print(listName);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => MyHomePage()));
+              },
+            ),
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   List<TodoItem> toDo = [];
 
   bool isFiltered = false;
@@ -299,12 +338,9 @@ class _ToDoListPageState extends State<ToDoListPage> {
             tooltip: 'Filter by importance',
           ),
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: Icon(Icons.delete_outline),
             onPressed: () {
-              deleteList(listName);
-              print(listName);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MyHomePage()));
+              _deleteDialog();
             },
             tooltip: 'Delete the list',
           ),
