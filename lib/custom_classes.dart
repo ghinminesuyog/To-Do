@@ -103,15 +103,15 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
           actions: <Widget>[
             FlatButton(
               child: Text('Create'),
-              
               // color: Colors.red,
               // textColor: Colors.white,
               onPressed: () {
                 print('Create');
-                if (newListName.text != '') {
-                  addNewList(newListName.text);
-                  Navigator.of(context).pop();
-                } else {
+                Navigator.of(context).pop();
+                if(newListName.text != ''){
+                addNewList(newListName.text);
+
+                }else{
                   print('empty');
                 }
               },
@@ -178,58 +178,60 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                   },
                 ),
                 Expanded(
-                  child:
-                      // Scrollbar(
-                      // isAlwaysShown: true,
-                      // child:
-                      Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          width: 0.2,
+                  child: 
+                  // Scrollbar(
+                    // isAlwaysShown: true,
+                    // child: 
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            width: 0.2,
+                          ),
                         ),
                       ),
-                    ),
-                    child: ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      padding: EdgeInsets.all(0),
-                      //Helps build a listview builder inside a list view:
-                      shrinkWrap: true,
-                      itemCount: todoLists.length,
-                      itemBuilder: (context, ind) {
-                        return ListTile(
-                          selected: (currentIndex.home == false &&
-                              currentIndex.settings == false &&
-                              currentIndex.listIndex == ind),
-                          leading: Icon(Icons.event_note),
-                          title: Text(
-                            todoLists[ind],
-                            style: (isLargeFont)
-                                ? TextStyle(fontSize: 20)
-                                : TextStyle(),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              currentIndex = SelectedScreen(
-                                  home: false, settings: false, listIndex: ind);
-                              var listNameValue = todoLists[ind];
-                              Navigator.pop(context);
+                      child: ListView.builder(
+                        physics: BouncingScrollPhysics(),
+                        padding: EdgeInsets.all(0),
+                        //Helps build a listview builder inside a list view:
+                        shrinkWrap: true,
+                        itemCount: todoLists.length,
+                        itemBuilder: (context, ind) {
+                          return ListTile(
+                            selected: (currentIndex.home == false &&
+                                currentIndex.settings == false &&
+                                currentIndex.listIndex == ind),
+                            leading: Icon(Icons.event_note),
+                            title: Text(
+                              todoLists[ind],
+                              style: (isLargeFont)
+                                  ? TextStyle(fontSize: 20)
+                                  : TextStyle(),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                currentIndex = SelectedScreen(
+                                    home: false,
+                                    settings: false,
+                                    listIndex: ind);
+                                var listNameValue = todoLists[ind];
+                                Navigator.pop(context);
 
-                              // Navigator.pushNamed(context, listNameValue);
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      ToDoListPage(
-                                        listName: listNameValue,
-                                      )));
-                              print("Wanna view: $listNameValue");
+                                // Navigator.pushNamed(context, listNameValue);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        ToDoListPage(
+                                          listName: listNameValue,
+                                        )));
+                                print("Wanna view: $listNameValue");
 
-                              // print("${_screen}");
-                            });
-                          },
-                        );
-                      },
+                                // print("${_screen}");
+                              });
+                            },
+                          );
+                        },
+                      ),
                     ),
-                  ),
                   // ),
                 ),
                 Container(

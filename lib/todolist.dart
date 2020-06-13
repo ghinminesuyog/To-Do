@@ -106,9 +106,9 @@ class _ToDoListPageState extends State<ToDoListPage> {
       toDo.removeAt(index);
     });
 
-    Future.delayed(Duration(seconds: 15), () {
+    // Future.delayed(Duration(seconds: 15), () {
       write(toDo, listName);
-    });
+    // });
   }
 
   undoDelete(int index, TodoItem item) {
