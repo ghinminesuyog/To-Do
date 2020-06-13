@@ -31,10 +31,12 @@ class _ToDoListPageState extends State<ToDoListPage> {
     super.initState();
 
     readSettings().then((value) {
-      setState(() {
-        isDarkMode = value["dark"];
-        isLargeFont = value["largeFont"];
-      });
+      if (value != null) {
+        setState(() {
+          isDarkMode = value["dark"];
+          isLargeFont = value["largeFont"];
+        });
+      }
     });
 
     read(listName).then(
