@@ -174,59 +174,70 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
                   },
                 ),
                 Expanded(
-                  // child:
+                  child: 
                   // Scrollbar(
-                  //   isAlwaysShown: true,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          width: 0.2,
+                    // isAlwaysShown: true,
+                    // child: 
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            width: 0.2,
+                          ),
                         ),
                       ),
-                    ),
-                    child: ListView.builder(
-                      padding: EdgeInsets.all(0),
-                      //Helps build a listview builder inside a list view:
-                      // shrinkWrap: true,
-                      itemCount: todoLists.length,
-                      itemBuilder: (context, ind) {
-                        return ListTile(
-                          selected: (currentIndex.home == false &&
-                              currentIndex.settings == false &&
-                              currentIndex.listIndex == ind),
-                          leading: Icon(Icons.event_note),
-                          title: Text(
-                            todoLists[ind],
-                            style: (isLargeFont)
-                                ? TextStyle(fontSize: 20)
-                                : TextStyle(),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              currentIndex = SelectedScreen(
-                                  home: false, settings: false, listIndex: ind);
-                              var listNameValue = todoLists[ind];
-                              Navigator.pop(context);
+                      child: ListView.builder(
+                        physics: BouncingScrollPhysics(),
+                        padding: EdgeInsets.all(0),
+                        //Helps build a listview builder inside a list view:
+                        shrinkWrap: true,
+                        itemCount: todoLists.length,
+                        itemBuilder: (context, ind) {
+                          return ListTile(
+                            selected: (currentIndex.home == false &&
+                                currentIndex.settings == false &&
+                                currentIndex.listIndex == ind),
+                            leading: Icon(Icons.event_note),
+                            title: Text(
+                              todoLists[ind],
+                              style: (isLargeFont)
+                                  ? TextStyle(fontSize: 20)
+                                  : TextStyle(),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                currentIndex = SelectedScreen(
+                                    home: false,
+                                    settings: false,
+                                    listIndex: ind);
+                                var listNameValue = todoLists[ind];
+                                Navigator.pop(context);
 
-                              // Navigator.pushNamed(context, listNameValue);
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      ToDoListPage(
-                                        listName: listNameValue,
-                                      )));
-                              print("Wanna view: $listNameValue");
+                                // Navigator.pushNamed(context, listNameValue);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        ToDoListPage(
+                                          listName: listNameValue,
+                                        )));
+                                print("Wanna view: $listNameValue");
 
-                              // print("${_screen}");
-                            });
-                          },
-                        );
-                      },
+                                // print("${_screen}");
+                              });
+                            },
+                          );
+                        },
+                      ),
                     ),
-                  ),
                   // ),
                 ),
                 Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        width: 0.2,
+                      ),
+                    ),
+                  ),
                   padding: EdgeInsets.all(10),
                   child: ListTile(
                     selected: (currentIndex.settings == true),
