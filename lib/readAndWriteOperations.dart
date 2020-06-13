@@ -86,7 +86,7 @@ Future<List<TodoItem>> read(String listName) async {
     // print('No : ${lists.keys}');
 
     List<dynamic> tasks = lists[listName];
- 
+
     print(tasks);
 
     for (var task in tasks) {
@@ -104,6 +104,17 @@ Future<List<TodoItem>> read(String listName) async {
   return toDo;
 }
 
+writeEverything(Map<String,dynamic>list) async {
+  try {
+    final File file = await _getFilePath();
+
+    String listString = json.encode(list);
+
+    await file.writeAsString(listString);
+  } catch (err) {
+    print('Error occured while saving everything $err');
+  }
+}
 // getToDoListFilePath() async {
 //   final Directory directory = await getApplicationDocumentsDirectory();
 //   return File('${directory.path}/my_file.txt');
@@ -185,5 +196,20 @@ clearLocalStorage() async {
     file.delete();
   } catch (e) {
     print('Error deleting local data storage');
+  }
+}
+
+deleteList(String listName) async {
+  try {
+    Map<String, dynamic> allLists = await readAllLists();
+    print('All lists: $allLists');
+
+    print('Looking to delete: ${allLists[listName]} ');
+
+    allLists.remove(listName);
+
+    writeEverything(allLists);
+  } catch (err) {
+    print('Some error occured $err');
   }
 }

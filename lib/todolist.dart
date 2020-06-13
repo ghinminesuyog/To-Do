@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:todo/home_todo_list.dart';
 // import 'package:todo/main.dart';
 import 'dart:core';
 import 'settings.dart';
@@ -298,10 +299,21 @@ class _ToDoListPageState extends State<ToDoListPage> {
             tooltip: 'Filter by importance',
           ),
           IconButton(
+            icon: Icon(Icons.delete),
             onPressed: () {
-              shareToDoList(convertToSharableString(toDo), 'My To Do List');
+              deleteList(listName);
+              print(listName);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MyHomePage()));
+            },
+            tooltip: 'Delete the list',
+          ),
+          IconButton(
+            onPressed: () {
+              shareToDoList(convertToSharableString(toDo), listName);
             },
             icon: Icon(Icons.share),
+            tooltip: 'Share text',
           )
         ],
       ),
